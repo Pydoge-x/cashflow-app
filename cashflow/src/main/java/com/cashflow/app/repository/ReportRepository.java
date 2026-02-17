@@ -1,0 +1,11 @@
+package com.cashflow.app.repository;
+
+import com.cashflow.app.entity.Report;
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
+
+public interface ReportRepository extends JpaRepository<Report, Long> {
+    List<Report> findByUserId(Long userId);
+
+    boolean existsByUserIdAndType(Long userId, Report.ReportType type);
+}
