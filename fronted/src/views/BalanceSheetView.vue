@@ -335,10 +335,10 @@ async function handleSubmit() {
     savedItem = await financeStore.addBalanceSheetItem(reportId.value, form.value);
   }
 
-  // 金额互通逻辑：如果收入支出表中有同名项，则同步更新
+  // 金额互通逻辑：如果收入支出表中有同名项，则同步更新（仅针对负债项）
   const targetName = editingItem.value ? editingItem.value.name : form.value.name;
   const ieItem = financeStore.incomeExpense.find(i => i.name === targetName);
-  if (ieItem) {
+  if (ieItem && isDebtCategory.value) {
     await financeStore.updateIncomeExpenseItem(reportId.value, ieItem.id, {
       ...ieItem,
       name: form.value.name,

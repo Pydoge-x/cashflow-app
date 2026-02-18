@@ -288,32 +288,6 @@ function getItems(type, category) {
     (i) => i.type === type && i.category === category
   );
 
-  // 1. 资产收入部分：自动加入所有资产
-  if (type === "INCOME" && category === "ASSET_INCOME") {
-    const assets = financeStore.balanceSheet.filter((i) =>
-      ["CURRENT_ASSET", "INVESTMENT_ASSET", "PERSONAL_ASSET"].includes(i.category)
-    );
-    
-    // 合并逻辑：如果资产已存在于收入支出表中（通过名称匹配），则不重复添加
-    const syncedItems = assets.map((asset) => {
-      const existing = originalItems.find((oi) => oi.name === asset.name);
-      return existing || {
-        id: `sync-asset-${asset.id}`,
-        name: asset.name,
-        amount: asset.amount, // 使用资产负债表中的金额作为默认值
-        note: `来自资产：${asset.name}`,
-        isSync: true,
-        type: "INCOME",
-        category: "ASSET_INCOME"
-      };
-    });
-
-    // 返回合并后的列表（保留不在资产负债表中的原始收入项，并去重）
-    const assetNames = new Set(assets.map(a => a.name));
-    const extraItems = originalItems.filter(oi => !assetNames.has(oi.name));
-    
-    return [...syncedItems, ...extraItems];
-  }
 
   // 2. 资产性支出部分：自动加入所有负债
   if (type === "EXPENSE" && category === "ASSET_EXPENSE") {
@@ -364,13 +338,7 @@ const allExpenseItems = computed(() => {
 });
 
 const totalIncome = computed(() => {
-  return allIncomeItems.value.reduce((s, i) => {
-    // 资产收入分类只计算增量收益，排除由于同步产生的资产原值
-    if (i.category === 'ASSET_INCOME' && i.isSync) {
-      return s + (i.amount || 0) - (financeStore.balanceSheet.find(b => b.name === i.name)?.amount || 0);
-    }
-    return s + (i.amount || 0);
-  }, 0);
+  return allIncomeItems.value.reduce((s, i) => s + (i.amount || 0), 0);
 });
 
 const totalExpense = computed(() => {
@@ -436,9 +404,10 @@ async function handleSubmit() {
     savedItem = await financeStore.addIncomeExpenseItem(reportId.value, form.value);
   }
 
-  // 金额互通逻辑：如果资产负债表中有同名项，则同步更新
+  // 金额互通逻辑：如果资产负债表中有同名项，且为负债项，则同步更新
   const bsItem = financeStore.balanceSheet.find(i => i.name === form.value.name);
-  if (bsItem) {
+  const debtCategories = ["CONSUMER_DEBT", "INVESTMENT_DEBT", "PERSONAL_DEBT"];
+  if (bsItem && debtCategories.includes(bsItem.category)) {
     await financeStore.updateBalanceSheetItem(reportId.value, bsItem.id, {
       ...bsItem,
       amount: form.value.amount, // If user edits principal in IE, it updates BS principal

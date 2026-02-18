@@ -258,16 +258,8 @@ public class FinanceController {
                 .toList();
         double laborIncome = laborIncomeItems.stream().mapToDouble(IncomeExpenseItem::getAmount).sum();
 
-        // Asset Income (Merged BS Assets + IE Asset Income)
-        List<BalanceSheetItem> bsAssets = bsItems.stream()
-                .filter(i -> i.getCategory() == BalanceSheetItem.Category.CURRENT_ASSET ||
-                        i.getCategory() == BalanceSheetItem.Category.INVESTMENT_ASSET ||
-                        i.getCategory() == BalanceSheetItem.Category.PERSONAL_ASSET)
-                .toList();
+        // Asset Income (Only from IE Asset Income)
         Map<String, Double> assetIncomeMap = new HashMap<>();
-        for (BalanceSheetItem asset : bsAssets) {
-            assetIncomeMap.put(asset.getName(), asset.getAmount());
-        }
         for (IncomeExpenseItem ieItem : items) {
             if (ieItem.getType() == IncomeExpenseItem.Type.INCOME
                     && ieItem.getCategory() == IncomeExpenseItem.Category.ASSET_INCOME) {

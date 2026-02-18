@@ -91,17 +91,6 @@ function getMergedItems(type, category) {
     (i) => i.type === type && i.category === category
   );
 
-  if (type === "INCOME" && category === "ASSET_INCOME") {
-    const assets = financeStore.balanceSheet.filter((i) =>
-      ["CURRENT_ASSET", "INVESTMENT_ASSET", "PERSONAL_ASSET"].includes(i.category)
-    );
-    const syncedItems = assets.map((asset) => {
-      const existing = originalItems.find((oi) => oi.name === asset.name);
-      return existing || { name: asset.name, amount: asset.amount };
-    });
-    const assetNames = new Set(assets.map(a => a.name));
-    return [...syncedItems, ...originalItems.filter(oi => !assetNames.has(oi.name))];
-  }
 
   if (type === "EXPENSE" && category === "ASSET_EXPENSE") {
     const debts = financeStore.balanceSheet.filter((i) =>
@@ -109,7 +98,11 @@ function getMergedItems(type, category) {
     );
     const syncedItems = debts.map((debt) => {
       const existing = originalItems.find((oi) => oi.name === debt.name);
-      return existing || { name: debt.name, amount: debt.amount };
+      // Return interestAmount if it's a sync item
+      return existing || { 
+        name: debt.name, 
+        amount: debt.isInterest ? (debt.interestAmount || 0) : 0 
+      };
     });
     const debtNames = new Set(debts.map(d => d.name));
     return [...syncedItems, ...originalItems.filter(oi => !debtNames.has(oi.name))];
