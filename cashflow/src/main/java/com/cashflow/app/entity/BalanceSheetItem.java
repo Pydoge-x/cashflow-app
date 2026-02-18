@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 @Entity
+@com.fasterxml.jackson.annotation.JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 @Table(name = "balance_sheet_items")
 public class BalanceSheetItem {
     @Id

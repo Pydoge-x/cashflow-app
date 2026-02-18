@@ -1,6 +1,10 @@
 package com.cashflow.app.config;
 
 import com.cashflow.app.security.jwt.AuthEntryPointJwt;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
+import java.util.stream.Collectors;
 import com.cashflow.app.security.jwt.AuthTokenFilter;
 import com.cashflow.app.security.services.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +23,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.beans.factory.annotation.Value;
+import java.util.List;
 import java.util.Arrays;
 
 @Configuration
@@ -55,6 +63,7 @@ public class SecurityConfig {
         return new ProviderManager(authenticationProvider());
     }
 
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
@@ -71,10 +80,20 @@ public class SecurityConfig {
         return http.build();
     }
 
+    @Value("${VITE_FRONTED_BASE_URL:}")
+    private String frontedBaseUrl;
+
+    @Value("${VITE_DB_BASE_URL:}")
+    private String dbBaseUrlEnv;
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:3000"));
+        List<String> origins = Stream.of(frontedBaseUrl, dbBaseUrlEnv)
+            .filter(s -> s != null && !s.isBlank())
+            .flatMap(s -> Arrays.stream(s.split("\\s*,\\s*")))
+            .collect(Collectors.toList());
+        configuration.setAllowedOrigins(origins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Auth-Token"));
         configuration.setExposedHeaders(Arrays.asList("X-Auth-Token"));
@@ -83,4 +102,5 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
 }
