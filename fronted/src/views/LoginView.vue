@@ -71,7 +71,7 @@ async function handleLogin() {
     await authStore.login(form.value);
     router.push("/");
   } catch (e) {
-    error.value = e.response?.data?.message || "登录失败，请检查账号密码";
+    error.value = "登录失败，请检查账号密码";
   } finally {
     loading.value = false;
   }

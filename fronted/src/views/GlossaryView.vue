@@ -84,37 +84,37 @@ const terms = [
   },
   {
     categoryId: 'asset',
-    title: '个人资产 (Personal Asset)',
+    title: '自用资产 (Personal Asset)',
     description: '供个人长期使用或消费，不以产生现金流为首要目的的资产。',
     examples: '自住住房、家庭轿车、高档家具、电子设备。'
   },
   {
     categoryId: 'liability',
-    title: '消费性负债 (Consumer Debt)',
+    title: '消费负债 (Consumer Debt)',
     description: '为了满足当前消费需求而产生的债务，通常伴随较高的利息支出。',
     examples: '信用卡账单、消费贷款、网购分期。'
   },
   {
     categoryId: 'liability',
-    title: '投资性负债 (Investment Debt)',
+    title: '投资负债 (Investment Debt)',
     description: '为了获取更高回报的投资行为而筹集的资金。',
     examples: '房贷（用于投资房产）、用于购买股票的融资。'
   },
   {
     categoryId: 'liability',
-    title: '个人负债 (Personal Debt)',
+    title: '自用资产负债 (Personal Debt)',
     description: '通常指来自非金融机构的债务，如亲友之间的借款。',
     examples: '向朋友借的钱、亲戚资助的周转资金。'
   },
   {
     categoryId: 'income',
-    title: '劳动收入 (Labor Income)',
+    title: '劳动/主动收入 (Labor Income)',
     description: '通过付出体力和脑力劳动获得的报酬，也称“主动收入”。',
     examples: '月薪、奖金、加班费、兼职收入。'
   },
   {
     categoryId: 'income',
-    title: '资产收入 (Asset Income)',
+    title: '资产/被动收入 (Asset Income)',
     description: '通过持有资产而产生的被动收益。',
     examples: '股票派息、银行存款利息、房屋租金收益、基金分红。'
   },
