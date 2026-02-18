@@ -102,6 +102,7 @@
               <tr>
                 <th>名称</th>
                 <th>金额 (¥)</th>
+                <th>利息 (¥/月)</th>
                 <th>备注</th>
                 <th style="text-align: right">操作</th>
               </tr>
@@ -113,6 +114,12 @@
                   <span class="amount negative">{{
                     formatNum(item.amount)
                   }}</span>
+                </td>
+                <td>
+                  <span v-if="item.isInterest" class="amount" style="color: var(--color-warning)">
+                    {{ formatNum(item.interestAmount) }}
+                  </span>
+                  <span v-else style="color: var(--color-text-muted)">-</span>
                 </td>
                 <td style="color: var(--color-text-muted); font-size: 0.82rem">
                   {{ item.note || "-" }}
@@ -181,10 +188,26 @@
               required
             />
           </div>
-          <div class="form-group">
-            <label>备注</label>
-            <input v-model="form.note" type="text" placeholder="选填" />
-          </div>
+            <div class="form-group">
+              <label>备注</label>
+              <textarea v-model="form.note" placeholder="补充说明..."></textarea>
+            </div>
+
+            <template v-if="isDebtCategory">
+              <div class="form-group checkbox-group">
+                <input type="checkbox" id="isInterest" v-model="form.isInterest" />
+                <label for="isInterest">月利息支出（非本金部分）</label>
+              </div>
+              <div class="form-group" v-if="form.isInterest">
+                <label>月利息金额 (¥/月)</label>
+                <input
+                  type="number"
+                  v-model.number="form.interestAmount"
+                  step="0.01"
+                  placeholder="请输入月利息金额"
+                />
+              </div>
+            </template>
           <div class="modal-actions">
             <button
               type="button"
@@ -214,7 +237,18 @@ const reportId = computed(() => route.params.reportId);
 
 const showModal = ref(false);
 const editingItem = ref(null);
-const form = ref({ category: "CURRENT_ASSET", name: "", amount: "", note: "" });
+const form = ref({
+  category: "CURRENT_ASSET",
+  name: "",
+  amount: "",
+  note: "",
+  isInterest: false,
+  interestAmount: 0,
+});
+
+const isDebtCategory = computed(() => {
+  return ["CONSUMER_DEBT", "INVESTMENT_DEBT", "PERSONAL_DEBT"].includes(form.value.category);
+});
 
 const assetCategories = {
   CURRENT_ASSET: { label: "流动资产" },
@@ -226,6 +260,15 @@ const debtCategories = {
   CONSUMER_DEBT: { label: "消费负债" },
   INVESTMENT_DEBT: { label: "投资负债" },
   PERSONAL_DEBT: { label: "自用资产负债" },
+};
+
+const categories = {
+  CURRENT_ASSET: "流动资产",
+  INVESTMENT_ASSET: "投资性资产",
+  PERSONAL_ASSET: "自用资产",
+  CONSUMER_DEBT: "消费负债",
+  INVESTMENT_DEBT: "投资负债",
+  PERSONAL_DEBT: "自用资产负债",
 };
 
 function getItems(category) {
@@ -261,9 +304,16 @@ function formatNum(n) {
   });
 }
 
-function openAddModal() {
+function openAddModal(category) {
   editingItem.value = null;
-  form.value = { category: "CURRENT_ASSET", name: "", amount: "", note: "" };
+  form.value = {
+    category,
+    name: "",
+    amount: "",
+    note: "",
+    isInterest: false,
+    interestAmount: 0,
+  };
   showModal.value = true;
 }
 
@@ -274,15 +324,31 @@ function openEditModal(item) {
 }
 
 async function handleSubmit() {
+  let savedItem;
   if (editingItem.value) {
-    await financeStore.updateBalanceSheetItem(
+    savedItem = await financeStore.updateBalanceSheetItem(
       reportId.value,
       editingItem.value.id,
       form.value,
     );
   } else {
-    await financeStore.addBalanceSheetItem(reportId.value, form.value);
+    savedItem = await financeStore.addBalanceSheetItem(reportId.value, form.value);
   }
+
+  // 金额互通逻辑：如果收入支出表中有同名项，则同步更新
+  const targetName = editingItem.value ? editingItem.value.name : form.value.name;
+  const ieItem = financeStore.incomeExpense.find(i => i.name === targetName);
+  if (ieItem) {
+    await financeStore.updateIncomeExpenseItem(reportId.value, ieItem.id, {
+      ...ieItem,
+      name: form.value.name,
+      amount: form.value.amount, // Now principal is separate from interest
+      isInterest: form.value.isInterest,
+      interestAmount: form.value.interestAmount,
+      note: form.value.note
+    });
+  }
+
   showModal.value = false;
 }
 
@@ -292,8 +358,11 @@ async function handleDelete(itemId) {
   }
 }
 
-onMounted(() => {
-  financeStore.fetchBalanceSheet(reportId.value);
+onMounted(async () => {
+  await Promise.all([
+    financeStore.fetchBalanceSheet(reportId.value),
+    financeStore.fetchIncomeExpense(reportId.value)
+  ]);
 });
 </script>
 

@@ -55,6 +55,14 @@
               <span class="nav-icon">📈</span>
               <span>现金流表</span>
             </router-link>
+            <router-link
+              :to="`/charts/${report.id}`"
+              class="nav-item sub"
+              @click="sidebarOpen = false"
+            >
+              <span class="nav-icon">📊</span>
+              <span>财务图表</span>
+            </router-link>
           </div>
         </template>
       </nav>

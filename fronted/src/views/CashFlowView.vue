@@ -212,6 +212,41 @@
           </tbody>
         </table>
         <div v-else class="empty-row">暂无利息支出</div>
+
+        <div class="section-divider">资产性支出</div>
+        <table
+          class="data-table"
+          v-if="
+            cashFlow.assetExpenseItems &&
+            cashFlow.assetExpenseItems.length > 0
+          "
+        >
+          <thead>
+            <tr>
+              <th>项目</th>
+              <th style="text-align: right">金额 (¥/月)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in cashFlow.assetExpenseItems" :key="item.name">
+              <td>{{ item.name }}</td>
+              <td style="text-align: right">
+                <span class="amount negative">{{
+                  formatNum(item.amount)
+                }}</span>
+              </td>
+            </tr>
+            <tr class="subtotal-row">
+              <td>小计</td>
+              <td style="text-align: right">
+                <span class="amount negative">{{
+                  formatNum(cashFlow.assetExpense)
+                }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div v-else class="empty-row">暂无资产性支出</div>
       </div>
 
       <!-- 不计入现金流的项目 -->
@@ -270,8 +305,8 @@
             <span class="formula-label">月总支出</span>
             <span class="formula-eq">=</span>
             <span
-              >生活支出 + 借款利息 = ¥{{ formatNum(cashFlow.livingExpense) }} +
-              ¥{{ formatNum(cashFlow.interestExpense) }} =
+              >生活支出 + 借款利息 + 资产支出 = ¥{{ formatNum(cashFlow.livingExpense) }} +
+              ¥{{ formatNum(cashFlow.interestExpense) }} + ¥{{ formatNum(cashFlow.assetExpense) }} =
               <strong>¥{{ formatNum(cashFlow.totalExpense) }}</strong></span
             >
           </div>

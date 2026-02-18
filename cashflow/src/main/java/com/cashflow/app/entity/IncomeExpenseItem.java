@@ -31,8 +31,10 @@ public class IncomeExpenseItem {
     private Double amount;
 
     @Column(name = "is_interest")
-    private Boolean isInterest = false; // Only relevant for debts/expenses to mark if it's interest payment (cashflow
-                                        // relevant)
+    private Boolean isInterest = false;
+
+    @Column(name = "interest_amount")
+    private Double interestAmount = 0.0;
 
     private String note;
 

@@ -40,6 +40,12 @@ const routes = [
         props: true
       },
       {
+        path: 'charts/:reportId',
+        name: 'FinancialCharts',
+        component: () => import('../views/FinancialChartsView.vue'),
+        props: true
+      },
+      {
         path: 'profile',
         name: 'Profile',
         component: () => import('../views/ProfileView.vue')

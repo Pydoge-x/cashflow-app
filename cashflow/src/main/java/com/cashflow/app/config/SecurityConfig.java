@@ -23,6 +23,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -38,6 +40,8 @@ public class SecurityConfig {
 
     @Autowired
     private AuthEntryPointJwt unauthorizedHandler;
+
+    private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
 
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
@@ -62,7 +66,6 @@ public class SecurityConfig {
         // 直接创建ProviderManager，确保使用DaoAuthenticationProvider
         return new ProviderManager(authenticationProvider());
     }
-
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -89,15 +92,33 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        List<String> origins = Stream.of(frontedBaseUrl, dbBaseUrlEnv)
-            .filter(s -> s != null && !s.isBlank())
-            .flatMap(s -> Arrays.stream(s.split("\\s*,\\s*")))
-            .collect(Collectors.toList());
-        configuration.setAllowedOrigins(origins);
+
+        // Define origins to be allowed, reading from properties which now includes .env
+        logger.info("Raw property values - frontedBaseUrl: '{}', dbBaseUrlEnv: '{}'", frontedBaseUrl, dbBaseUrlEnv);
+
+        List<String> rawOrigins = Stream.of(frontedBaseUrl, dbBaseUrlEnv)
+                .filter(s -> s != null && !s.isBlank())
+                .toList();
+
+        List<String> origins = rawOrigins.stream()
+                .flatMap(s -> Arrays.stream(s.split("\\s*,\\s*")))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .distinct()
+                .collect(Collectors.toList());
+
+        logger.info("CORS allowed origins from .env/properties: {}", origins);
+
+        if (origins.isEmpty()) {
+            logger.warn("No CORS origins defined! Frontend connections might be blocked.");
+        }
+
+        configuration.setAllowedOriginPatterns(origins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Auth-Token"));
         configuration.setExposedHeaders(Arrays.asList("X-Auth-Token"));
         configuration.setAllowCredentials(true);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

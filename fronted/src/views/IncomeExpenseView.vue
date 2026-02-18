@@ -109,8 +109,8 @@
             <thead>
               <tr>
                 <th>名称</th>
-                <th>金额 (¥/月)</th>
-                <th>是否利息</th>
+                <th>金额 (¥)</th>
+                <th>利息额 (¥/月)</th>
                 <th>备注</th>
                 <th style="text-align: right">操作</th>
               </tr>
@@ -124,12 +124,10 @@
                   }}</span>
                 </td>
                 <td>
-                  <span
-                    class="badge"
-                    :class="item.isInterest ? 'badge-debt' : 'badge-personal'"
-                  >
-                    {{ item.isInterest ? "利息" : "本金" }}
+                  <span v-if="item.isInterest" class="amount" style="color: var(--color-warning)">
+                    {{ formatNum(item.interestAmount || 0) }}
                   </span>
+                  <span v-else style="color: var(--color-text-muted)">-</span>
                 </td>
                 <td style="color: var(--color-text-muted); font-size: 0.82rem">
                   {{ item.note || "-" }}
@@ -206,12 +204,17 @@
               required
             />
           </div>
-          <div class="form-group" v-if="form.type === 'EXPENSE'">
-            <label class="checkbox-label">
-              <input type="checkbox" v-model="form.isInterest" />
-              <span>标记为利息支出（计入现金流支出）</span>
-            </label>
-          </div>
+            <div class="form-group" v-if="form.type === 'EXPENSE'">
+              <label>是否为利息支出</label>
+              <div class="checkbox-group">
+                <input type="checkbox" v-model="form.isInterest" id="ieIsInterest" />
+                <label for="ieIsInterest">标记为利息（计入现金流）</label>
+              </div>
+            </div>
+            <div class="form-group" v-if="form.isInterest">
+              <label>利息金额 (¥)</label>
+              <input type="number" v-model.number="form.interestAmount" step="0.01" placeholder="请输入利息金额" />
+            </div>
           <div class="form-group">
             <label>备注</label>
             <input v-model="form.note" type="text" placeholder="选填" />
@@ -251,6 +254,7 @@ const form = ref({
   name: "",
   amount: "",
   isInterest: false,
+  interestAmount: 0,
   note: "",
 });
 
@@ -260,7 +264,10 @@ watch(
   (newType) => {
     form.value.category =
       newType === "INCOME" ? "LABOR_INCOME" : "LIVING_EXPENSE";
-    if (newType === "INCOME") form.value.isInterest = false;
+    if (newType === "INCOME") {
+      form.value.isInterest = false;
+      form.value.interestAmount = 0;
+    }
   },
 );
 
@@ -276,21 +283,104 @@ const expenseCategories = {
 };
 
 function getItems(type, category) {
-  return financeStore.incomeExpense.filter(
-    (i) => i.type === type && i.category === category,
+  // 获取原始数据
+  const originalItems = financeStore.incomeExpense.filter(
+    (i) => i.type === type && i.category === category
   );
+
+  // 1. 资产收入部分：自动加入所有资产
+  if (type === "INCOME" && category === "ASSET_INCOME") {
+    const assets = financeStore.balanceSheet.filter((i) =>
+      ["CURRENT_ASSET", "INVESTMENT_ASSET", "PERSONAL_ASSET"].includes(i.category)
+    );
+    
+    // 合并逻辑：如果资产已存在于收入支出表中（通过名称匹配），则不重复添加
+    const syncedItems = assets.map((asset) => {
+      const existing = originalItems.find((oi) => oi.name === asset.name);
+      return existing || {
+        id: `sync-asset-${asset.id}`,
+        name: asset.name,
+        amount: asset.amount, // 使用资产负债表中的金额作为默认值
+        note: `来自资产：${asset.name}`,
+        isSync: true,
+        type: "INCOME",
+        category: "ASSET_INCOME"
+      };
+    });
+
+    // 返回合并后的列表（保留不在资产负债表中的原始收入项，并去重）
+    const assetNames = new Set(assets.map(a => a.name));
+    const extraItems = originalItems.filter(oi => !assetNames.has(oi.name));
+    
+    return [...syncedItems, ...extraItems];
+  }
+
+  // 2. 资产性支出部分：自动加入所有负债
+  if (type === "EXPENSE" && category === "ASSET_EXPENSE") {
+    const debts = financeStore.balanceSheet.filter((i) =>
+      ["CONSUMER_DEBT", "INVESTMENT_DEBT", "PERSONAL_DEBT"].includes(i.category)
+    );
+
+    const syncedItems = debts.map((debt) => {
+      const existing = originalItems.find((oi) => oi.name === debt.name);
+      return existing || {
+        id: `sync-debt-${debt.id}`,
+        name: debt.name,
+        amount: debt.amount || 0, // 恢复显示本金金额
+        note: `来自负债：${debt.name}`,
+        isSync: true,
+        type: "EXPENSE",
+        category: "ASSET_EXPENSE",
+        isInterest: debt.isInterest,
+        interestAmount: debt.interestAmount || 0,
+      };
+    });
+
+    const debtNames = new Set(debts.map(d => d.name));
+    const extraItems = originalItems.filter(oi => !debtNames.has(oi.name));
+
+    return [...syncedItems, ...extraItems];
+  }
+
+  return originalItems;
 }
 
+const allIncomeItems = computed(() => {
+  const categories = Object.keys(incomeCategories);
+  let all = [];
+  categories.forEach(cat => {
+    all = [...all, ...getItems('INCOME', cat)];
+  });
+  return all;
+});
+
+const allExpenseItems = computed(() => {
+  const categories = Object.keys(expenseCategories);
+  let all = [];
+  categories.forEach(cat => {
+    all = [...all, ...getItems('EXPENSE', cat)];
+  });
+  return all;
+});
+
 const totalIncome = computed(() => {
-  return financeStore.incomeExpense
-    .filter((i) => i.type === "INCOME")
-    .reduce((s, i) => s + (i.amount || 0), 0);
+  return allIncomeItems.value.reduce((s, i) => {
+    // 资产收入分类只计算增量收益，排除由于同步产生的资产原值
+    if (i.category === 'ASSET_INCOME' && i.isSync) {
+      return s + (i.amount || 0) - (financeStore.balanceSheet.find(b => b.name === i.name)?.amount || 0);
+    }
+    return s + (i.amount || 0);
+  }, 0);
 });
 
 const totalExpense = computed(() => {
-  return financeStore.incomeExpense
-    .filter((i) => i.type === "EXPENSE")
-    .reduce((s, i) => s + (i.amount || 0), 0);
+  return allExpenseItems.value.reduce((s, i) => {
+    // 资产性支出分类只计算利息部分，排除本金
+    if (i.category === 'ASSET_EXPENSE' || i.category === 'LOAN_REPAYMENT') {
+      return s + (i.interestAmount || 0);
+    }
+    return s + (i.amount || 0);
+  }, 0);
 });
 
 const balance = computed(() => totalIncome.value - totalExpense.value);
@@ -309,39 +399,74 @@ function openAddModal() {
     category: "LABOR_INCOME",
     name: "",
     amount: "",
-    isInterest: false,
     note: "",
+    isInterest: false,
+    interestAmount: 0,
   };
   showModal.value = true;
 }
 
 function openEditModal(item) {
   editingItem.value = item;
-  form.value = { ...item };
+  // 如果是同步项，去掉临时 ID
+  if (typeof item.id === 'string' && item.id.startsWith('sync-')) {
+    form.value = {
+      ...item,
+      id: undefined, // 提交时作为新条目
+    };
+  } else {
+    form.value = {
+      ...item,
+      isInterest: item.isInterest || false,
+      interestAmount: item.interestAmount || 0,
+    };
+  }
   showModal.value = true;
 }
 
 async function handleSubmit() {
-  if (editingItem.value) {
-    await financeStore.updateIncomeExpenseItem(
+  let savedItem;
+  if (editingItem.value && editingItem.value.id && !editingItem.value.isSync) {
+    savedItem = await financeStore.updateIncomeExpenseItem(
       reportId.value,
       editingItem.value.id,
       form.value,
     );
   } else {
-    await financeStore.addIncomeExpenseItem(reportId.value, form.value);
+    savedItem = await financeStore.addIncomeExpenseItem(reportId.value, form.value);
   }
+
+  // 金额互通逻辑：如果资产负债表中有同名项，则同步更新
+  const bsItem = financeStore.balanceSheet.find(i => i.name === form.value.name);
+  if (bsItem) {
+    await financeStore.updateBalanceSheetItem(reportId.value, bsItem.id, {
+      ...bsItem,
+      amount: form.value.amount, // If user edits principal in IE, it updates BS principal
+      isInterest: form.value.isInterest,
+      interestAmount: form.value.interestAmount // Use form.interestAmount for BS sync
+    });
+  }
+
   showModal.value = false;
 }
 
 async function handleDelete(itemId) {
+  if (typeof itemId === "string" && itemId.startsWith("sync-")) {
+    alert(
+      "这是来自资产负债表的自动同步项，无法直接删除。请前往资产负债表修改。",
+    );
+    return;
+  }
   if (confirm("确定删除此条目？")) {
     await financeStore.deleteIncomeExpenseItem(reportId.value, itemId);
   }
 }
 
-onMounted(() => {
-  financeStore.fetchIncomeExpense(reportId.value);
+onMounted(async () => {
+  await Promise.all([
+    financeStore.fetchIncomeExpense(reportId.value),
+    financeStore.fetchBalanceSheet(reportId.value),
+  ]);
 });
 </script>
 

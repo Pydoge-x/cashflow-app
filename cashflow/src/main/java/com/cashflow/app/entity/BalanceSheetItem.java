@@ -28,6 +28,10 @@ public class BalanceSheetItem {
 
     private String note;
 
+    private Boolean isInterest = false;
+
+    private Double interestAmount = 0.0;
+
     public enum Category {
         CURRENT_ASSET, // 流动资产
         INVESTMENT_ASSET, // 投资性资产
