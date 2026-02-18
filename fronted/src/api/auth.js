@@ -16,5 +16,9 @@ export const authApi = {
   // 更新用户信息
   updateProfile(data) {
     return api.put('/user/profile', data)
+  },
+  // 发送验证码
+  sendCode(data) {
+    return api.post('/auth/send-code', data)
   }
 }

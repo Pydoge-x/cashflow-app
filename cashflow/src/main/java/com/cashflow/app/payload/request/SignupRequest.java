@@ -10,4 +10,6 @@ public class SignupRequest {
     private String password;
     private String gender; // MALE, FEMALE
     private Integer age;
+    private String code;
+    private String registrationMethod; // PHONE, EMAIL
 }

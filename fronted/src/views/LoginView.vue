@@ -13,11 +13,11 @@
 
           <form @submit.prevent="handleLogin" class="auth-form">
             <div class="form-group">
-              <label>手机号 / 邮箱</label>
+              <label>邮箱</label>
               <input
-                v-model="form.account"
+                v-model.trim="form.account"
                 type="text"
-                placeholder="请输入手机号或邮箱"
+                placeholder="请输入邮箱"
                 required
               />
             </div>
