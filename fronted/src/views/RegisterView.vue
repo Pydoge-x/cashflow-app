@@ -1,67 +1,71 @@
 <template>
-  <div class="auth-page">
-    <div class="auth-container">
-      <div class="auth-card">
-        <div class="auth-header">
-          <span class="auth-logo">💰</span>
-          <h1>创建账号</h1>
-          <p>开始管理你的财务状况</p>
-        </div>
-
-        <form @submit.prevent="handleRegister" class="auth-form">
-          <div class="form-group">
-            <label>用户名</label>
-            <input
-              v-model="form.username"
-              type="text"
-              placeholder="请输入用户名"
-              required
-            />
+  <div class="celestial-container">
+    <div class="celestial-stars"></div>
+    <WealthParticles :count="60" />
+    <div class="auth-page">
+      <div class="auth-container">
+        <div class="auth-card auth-glass-card">
+          <div class="auth-header">
+            <span class="auth-logo">✨</span>
+            <h1>加入星际财富</h1>
+            <p>开启你的星辰财富之旅</p>
           </div>
-          <div class="form-row">
+
+          <form @submit.prevent="handleRegister" class="auth-form">
             <div class="form-group">
-              <label>手机号</label>
-              <input v-model="form.phone" type="tel" placeholder="选填" />
+              <label>用户名</label>
+              <input
+                v-model="form.username"
+                type="text"
+                placeholder="请输入用户名"
+                required
+              />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>手机号</label>
+                <input v-model="form.phone" type="tel" placeholder="选填" />
+              </div>
+              <div class="form-group">
+                <label>邮箱</label>
+                <input v-model="form.email" type="email" placeholder="选填" />
+              </div>
             </div>
             <div class="form-group">
-              <label>邮箱</label>
-              <input v-model="form.email" type="email" placeholder="选填" />
+              <label>密码</label>
+              <input
+                v-model="form.password"
+                type="password"
+                placeholder="请输入密码 (至少6位)"
+                required
+                minlength="6"
+              />
             </div>
-          </div>
-          <div class="form-group">
-            <label>密码</label>
-            <input
-              v-model="form.password"
-              type="password"
-              placeholder="请输入密码 (至少6位)"
-              required
-              minlength="6"
-            />
-          </div>
-          <div class="form-group">
-            <label>确认密码</label>
-            <input
-              v-model="form.confirmPassword"
-              type="password"
-              placeholder="请再次输入密码"
-              required
-            />
-          </div>
+            <div class="form-group">
+              <label>确认密码</label>
+              <input
+                v-model="form.confirmPassword"
+                type="password"
+                placeholder="请再次输入密码"
+                required
+              />
+            </div>
 
-          <div v-if="error" class="auth-error">{{ error }}</div>
-          <div v-if="success" class="auth-success">{{ success }}</div>
+            <div v-if="error" class="auth-error">{{ error }}</div>
+            <div v-if="success" class="auth-success">{{ success }}</div>
 
-          <button
-            type="submit"
-            class="btn btn-primary btn-block"
-            :disabled="loading"
-          >
-            {{ loading ? "注册中..." : "注 册" }}
-          </button>
-        </form>
+            <button
+              type="submit"
+              class="btn btn-primary btn-block"
+              :disabled="loading"
+            >
+              {{ loading ? "正在同步星图..." : "即 刻 起 航" }}
+            </button>
+          </form>
 
-        <div class="auth-footer">
-          已有账号？<router-link to="/login">返回登录</router-link>
+          <div class="auth-footer">
+            已有账号？<router-link to="/login">返回登录</router-link>
+          </div>
         </div>
       </div>
     </div>
@@ -72,6 +76,7 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth";
+import WealthParticles from "../components/WealthParticles.vue";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -119,19 +124,10 @@ async function handleRegister() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-bg);
-  background-image:
-    radial-gradient(
-      ellipse at 20% 50%,
-      rgba(99, 102, 241, 0.08) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      ellipse at 80% 20%,
-      rgba(139, 92, 246, 0.06) 0%,
-      transparent 50%
-    );
   padding: 1rem;
+  position: relative;
+  z-index: 2;
+  background: transparent;
 }
 
 .auth-container {
@@ -140,11 +136,15 @@ async function handleRegister() {
 }
 
 .auth-card {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-xl);
-  padding: 2.5rem 2rem;
-  box-shadow: var(--shadow-lg);
+  padding: 3rem 2.5rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  position: relative;
+  z-index: 1;
 }
 
 .auth-header {
@@ -159,13 +159,14 @@ async function handleRegister() {
 }
 
 .auth-header h1 {
-  font-size: 1.6rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--color-primary), #a78bfa);
+  font-size: 2.25rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin-bottom: 0.3rem;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
 }
 
 .auth-header p {

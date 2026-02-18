@@ -2,41 +2,62 @@
 
 /* ===== CSS 变量 / Design Tokens ===== */
 :root {
-  --color-bg: #0f1119;
-  --color-bg-secondary: #161822;
-  --color-bg-card: #1c1f2e;
-  --color-bg-card-hover: #232740;
-  --color-bg-input: #232740;
-  --color-border: #2a2e45;
-  --color-border-focus: #6366f1;
-  --color-text: #e2e8f0;
+  /* ===== Premium HSL Color Palette ===== */
+  --h-primary: 235;
+  --s-primary: 85%;
+  --l-primary: 65%;
+
+  --color-primary: hsl(var(--h-primary), var(--s-primary), var(--l-primary));
+  --color-primary-hover: hsl(var(--h-primary), var(--s-primary), 72%);
+  --color-primary-bg: hsla(
+    var(--h-primary),
+    var(--s-primary),
+    var(--l-primary),
+    0.1
+  );
+
+  --color-bg: #0b0d13;
+  --color-bg-secondary: #0f121b;
+  --color-bg-card: #151926;
+  --color-bg-card-hover: #1c2235;
+  --color-bg-input: #1a1f2e;
+
+  --color-border: hsla(0, 0%, 100%, 0.08);
+  --color-border-hover: hsla(0, 0%, 100%, 0.15);
+  --color-border-focus: var(--color-primary);
+
+  --color-text: #f8fafc;
   --color-text-secondary: #94a3b8;
   --color-text-muted: #64748b;
-  --color-primary: #6366f1;
-  --color-primary-hover: #818cf8;
-  --color-primary-bg: rgba(99, 102, 241, 0.12);
-  --color-success: #22c55e;
-  --color-success-bg: rgba(34, 197, 94, 0.12);
-  --color-danger: #ef4444;
-  --color-danger-bg: rgba(239, 68, 68, 0.12);
+
+  --color-success: #10b981;
+  --color-success-bg: rgba(16, 185, 129, 0.1);
+  --color-danger: #f43f5e;
+  --color-danger-bg: rgba(244, 63, 94, 0.1);
   --color-warning: #f59e0b;
-  --color-warning-bg: rgba(245, 158, 11, 0.12);
-  --color-info: #3b82f6;
-  --color-info-bg: rgba(59, 130, 246, 0.12);
-  --color-asset: #22c55e;
-  --color-debt: #ef4444;
-  --color-income: #22c55e;
-  --color-expense: #ef4444;
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.4);
-  --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  --font-family:
-    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --color-warning-bg: rgba(245, 158, 11, 0.1);
+
+  /* ===== Glassmorphism & Effects ===== */
+  --glass-bg: hsla(222, 47%, 11%, 0.7);
+  --glass-border: hsla(0, 0%, 100%, 0.1);
+  --glass-blur: 12px;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg:
+    0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl:
+    0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+  --font-family: "Inter", system-ui, -apple-system, sans-serif;
 }
 
 /* ===== 全局重置 ===== */
@@ -126,31 +147,33 @@ label {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.65rem 1.3rem;
+  gap: 0.6rem;
+  padding: 0.75rem 1.5rem;
   font-family: var(--font-family);
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   font-weight: 600;
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: var(--transition);
   white-space: nowrap;
+  letter-spacing: 0.01em;
 }
 
 .btn:active {
-  transform: scale(0.97);
+  transform: scale(0.96);
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--color-primary), #8b5cf6);
+  background: linear-gradient(135deg, var(--color-primary) 0%, hsl(var(--h-primary), var(--s-primary), 55%) 100%);
   color: #fff;
-  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 12px hsla(var(--h-primary), var(--s-primary), var(--l-primary), 0.25);
 }
 
 .btn-primary:hover {
-  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.45);
-  transform: translateY(-1px);
+  box-shadow: 0 8px 24px hsla(var(--h-primary), var(--s-primary), var(--l-primary), 0.4);
+  transform: translateY(-2px);
+  filter: brightness(1.1);
 }
 
 .btn-secondary {
@@ -161,18 +184,19 @@ label {
 
 .btn-secondary:hover {
   background: var(--color-bg-card-hover);
-  border-color: var(--color-primary);
+  border-color: hsla(0, 0%, 100%, 0.2);
+  transform: translateY(-1px);
 }
 
 .btn-danger {
   background: var(--color-danger-bg);
   color: var(--color-danger);
-  border: 1px solid transparent;
 }
 
 .btn-danger:hover {
   background: var(--color-danger);
   color: #fff;
+  transform: translateY(-1px);
 }
 
 .btn-success {
@@ -183,6 +207,7 @@ label {
 .btn-success:hover {
   background: var(--color-success);
   color: #fff;
+  transform: translateY(-1px);
 }
 
 .btn-sm {
@@ -199,12 +224,15 @@ label {
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  padding: 1.5rem;
+  padding: 1.75rem;
   transition: var(--transition);
+  box-shadow: var(--shadow-md);
 }
 
 .card:hover {
-  border-color: rgba(99, 102, 241, 0.25);
+  border-color: hsla(var(--h-primary), var(--s-primary), var(--l-primary), 0.3);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
 }
 
 .card-header {
@@ -602,4 +630,57 @@ label {
   .summary-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ===== 星辰财富主题 (Celestial Wealth) ===== */
+.celestial-container {
+  position: relative;
+  min-height: 100vh;
+  background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
+  overflow: hidden;
+}
+
+.celestial-stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  z-index: 0;
+}
+
+/* 多层星空生成 */
+.celestial-stars::before,
+.celestial-stars::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 200%;
+  background-image: 
+    radial-gradient(1px 1px at 20px 30px, #fff, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 40px 70px, #fff, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 50px 160px, #fff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 130px 80px, #fff, rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  opacity: 0.3;
+  animation: starsTwinkle 10s linear infinite;
+}
+
+.auth-glass-card {
+  background: rgba(15, 23, 42, 0.4) !important;
+  backdrop-filter: blur(25px) !important;
+  border: 1px solid rgba(255, 215, 0, 0.1) !important;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5), 
+              0 0 15px rgba(255, 215, 0, 0.05) !important;
+}
+
+.auth-glass-card:hover {
+  border-color: rgba(255, 215, 0, 0.2) !important;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6), 
+              0 0 30px rgba(255, 215, 0, 0.1) !important;
 }

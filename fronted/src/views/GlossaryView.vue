@@ -203,14 +203,17 @@ function getCategoryLabel(id) {
 }
 
 .search-box input {
-  width: 350px;
-  padding: 0.8rem 1.2rem;
-  background: var(--color-bg-light);
+  width: 400px;
+  padding: 0.85rem 1.4rem;
+  background: rgba(30, 41, 59, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   color: #fff;
   font-size: 1rem;
   transition: all 0.3s ease;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .search-box input:focus {
@@ -255,19 +258,23 @@ function getCategoryLabel(id) {
 }
 
 .term-card {
-  background: var(--color-bg-light);
+  background: rgba(30, 41, 59, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border: 1px solid var(--color-border);
-  border-radius: 16px;
-  padding: 1.5rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .term-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--color-primary);
-  background: rgba(30, 41, 59, 0.8);
+  transform: translateY(-6px) scale(1.02);
+  border-color: hsla(var(--h-primary), var(--s-primary), var(--l-primary), 0.4);
+  background: rgba(30, 41, 59, 0.5);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
 }
 
 .term-header {

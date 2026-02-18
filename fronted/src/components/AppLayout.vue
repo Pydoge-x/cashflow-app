@@ -1,5 +1,8 @@
 <template>
-  <div class="app-layout">
+  <div class="celestial-container">
+    <div class="celestial-stars" style="opacity: 0.15;"></div>
+    <WealthParticles :count="35" style="opacity: 0.25;" />
+    <div class="app-layout">
     <!-- 侧边栏 (桌面端) -->
     <aside class="sidebar" :class="{ open: sidebarOpen }">
       <div class="sidebar-header">
@@ -108,6 +111,7 @@
       <span class="glossary-icon">📖</span>
       <span class="glossary-text">名词解析</span>
     </router-link>
+    </div>
   </div>
 </template>
 
@@ -116,6 +120,7 @@ import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 import { useFinanceStore } from "../stores/finance";
+import WealthParticles from "./WealthParticles.vue";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -144,12 +149,17 @@ onMounted(() => {
 .app-layout {
   display: flex;
   min-height: 100vh;
+  position: relative;
+  z-index: 1;
+  background: transparent;
 }
 
 /* ===== 侧边栏 ===== */
 .sidebar {
   width: 260px;
-  background: var(--color-bg-secondary);
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-right: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
@@ -180,12 +190,13 @@ onMounted(() => {
 }
 
 .logo-text {
-  font-size: 1.2rem;
-  font-weight: 700;
+  font-size: 1.3rem;
+  font-weight: 800;
   background: linear-gradient(135deg, var(--color-primary), #a78bfa);
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.02em;
 }
 
 .sidebar-close {
@@ -232,14 +243,19 @@ onMounted(() => {
 }
 
 .nav-item:hover {
-  background: var(--color-primary-bg);
-  color: var(--color-text);
+  background: hsla(var(--h-primary), var(--s-primary), var(--l-primary), 0.08);
+  color: #fff;
+  transform: translateX(4px);
 }
 
 .nav-item.router-link-active,
 .nav-item.router-link-exact-active {
-  background: var(--color-primary-bg);
+  background: linear-gradient(90deg, var(--color-primary-bg) 0%, transparent 100%);
   color: var(--color-primary);
+  border-left: 2px solid var(--color-primary);
+  border-radius: 0 8px 8px 0;
+  margin-left: 0;
+  width: calc(100% - 0.6rem);
 }
 
 .nav-item.sub {
@@ -289,10 +305,11 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.8rem 1.5rem;
+  padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--color-border);
-  background: rgba(15, 17, 25, 0.8);
-  backdrop-filter: blur(12px);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
   position: sticky;
   top: 0;
   z-index: 50;
@@ -366,27 +383,42 @@ onMounted(() => {
 /* ===== 悬浮词典球 ===== */
 .floating-glossary {
   position: fixed;
-  right: 2rem;
-  bottom: 2rem;
-  width: 56px;
-  height: 56px;
-  background: var(--color-primary);
-  border-radius: 28px;
+  right: 2.5rem;
+  bottom: 2.5rem;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, var(--color-primary) 0%, #818cf8 100%);
+  border-radius: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 8px 32px hsla(var(--h-primary), var(--s-primary), var(--l-primary), 0.4);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   z-index: 1000;
   text-decoration: none;
   overflow: hidden;
+  border: 1px solid hsla(0, 0%, 100%, 0.2);
+}
+
+.floating-glossary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, hsla(0,0%,100%,0.3) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.floating-glossary:hover::after {
+  opacity: 1;
 }
 
 .floating-glossary:hover {
-  width: 140px;
-  border-radius: 28px;
-  transform: scale(1.05);
+  width: 160px;
+  border-radius: 30px;
+  transform: scale(1.05) translateY(-5px);
+  box-shadow: 0 12px 40px hsla(var(--h-primary), var(--s-primary), var(--l-primary), 0.5);
 }
 
 .glossary-icon {

@@ -198,8 +198,10 @@ onMounted(() => {
 }
 
 .report-card-header h3 {
-  font-size: 1.15rem;
-  margin-top: 0.5rem;
+  font-size: 1.3rem;
+  margin-top: 0.6rem;
+  font-weight: 700;
+  color: #fff;
 }
 
 .report-links {
@@ -211,20 +213,22 @@ onMounted(() => {
 .report-link {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
-  padding: 0.85rem 1rem;
-  background: var(--color-bg);
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--color-bg-input);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   color: var(--color-text);
   text-decoration: none;
   transition: var(--transition);
+  position: relative;
 }
 
 .report-link:hover {
-  border-color: var(--color-primary);
-  background: var(--color-primary-bg);
-  transform: translateX(4px);
+  border-color: hsla(var(--h-primary), var(--s-primary), var(--l-primary), 0.4);
+  background: var(--color-bg-card-hover);
+  transform: translateX(6px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .link-icon {
@@ -244,7 +248,13 @@ onMounted(() => {
 .link-arrow {
   margin-left: auto;
   color: var(--color-text-muted);
-  font-size: 1.1rem;
+  font-size: 1.2rem;
+  transition: var(--transition);
+}
+
+.report-link:hover .link-arrow {
+  color: var(--color-primary);
+  transform: translateX(4px);
 }
 
 /* 报表类型选择 */
