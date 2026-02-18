@@ -49,6 +49,11 @@ const routes = [
         path: 'profile',
         name: 'Profile',
         component: () => import('../views/ProfileView.vue')
+      },
+      {
+        path: 'glossary',
+        name: 'Glossary',
+        component: () => import('../views/GlossaryView.vue')
       }
     ]
   }

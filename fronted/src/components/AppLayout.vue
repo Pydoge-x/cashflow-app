@@ -102,6 +102,12 @@
         <router-view />
       </div>
     </main>
+
+    <!-- 悬浮词典球 -->
+    <router-link to="/glossary" class="floating-glossary" title="金融名词解析">
+      <span class="glossary-icon">📖</span>
+      <span class="glossary-text">名词解析</span>
+    </router-link>
   </div>
 </template>
 
@@ -354,6 +360,67 @@ onMounted(() => {
 
   .content-area {
     padding: 1rem;
+  }
+}
+
+/* ===== 悬浮词典球 ===== */
+.floating-glossary {
+  position: fixed;
+  right: 2rem;
+  bottom: 2rem;
+  width: 56px;
+  height: 56px;
+  background: var(--color-primary);
+  border-radius: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 1000;
+  text-decoration: none;
+  overflow: hidden;
+}
+
+.floating-glossary:hover {
+  width: 140px;
+  border-radius: 28px;
+  transform: scale(1.05);
+}
+
+.glossary-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.glossary-text {
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  opacity: 0;
+  width: 0;
+  transition: all 0.3s ease;
+  margin-left: 0;
+}
+
+.floating-glossary:hover .glossary-text {
+  opacity: 1;
+  width: auto;
+  margin-left: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .floating-glossary {
+    right: 1rem;
+    bottom: 1rem;
+  }
+  .floating-glossary:hover {
+    width: 56px; /* 移动端不展开，保持简洁 */
+  }
+  .floating-glossary:hover .glossary-text {
+    display: none;
   }
 }
 </style>
