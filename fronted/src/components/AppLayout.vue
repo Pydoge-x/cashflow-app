@@ -1,131 +1,210 @@
 <template>
-  <div class="celestial-container">
-    <div class="celestial-stars" style="opacity: 0.15;"></div>
-    <WealthParticles :count="35" style="opacity: 0.25;" />
-    <div class="app-layout">
-    <!-- 侧边栏 (桌面端) -->
-    <aside class="sidebar" :class="{ open: sidebarOpen }">
-      <div class="sidebar-header">
-        <div class="logo">
-          <span class="logo-icon">💰</span>
-          <span class="logo-text">CashFlow</span>
+  <div class="golden-container">
+    <div class="golden-pattern" style="opacity: 0.5;"></div>
+    <WealthParticles :count="35" style="opacity: 0.4;" />
+    <el-container class="app-layout">
+      <!-- 侧边栏 (桌面端) -->
+      <el-aside :width="sidebarWidth" class="sidebar" :class="{ 'sidebar-collapsed': isCollapsed }">
+        <div class="sidebar-header">
+          <div class="logo">
+            <span class="logo-icon">💰</span>
+            <span v-show="!isCollapsed" class="logo-text">CashFlow</span>
+          </div>
+          <el-button
+            class="collapse-btn"
+            :icon="isCollapsed ? 'Expand' : 'Fold'"
+            text
+            @click="isCollapsed = !isCollapsed"
+          />
         </div>
-        <button class="sidebar-close" @click="sidebarOpen = false">✕</button>
-      </div>
 
-      <nav class="sidebar-nav">
-        <router-link to="/" class="nav-item" @click="sidebarOpen = false">
-          <span class="nav-icon">📊</span>
-          <span>仪表盘</span>
-        </router-link>
+        <el-menu
+          :default-active="activeMenu"
+          :collapse="isCollapsed"
+          class="sidebar-menu"
+          router
+        >
+          <el-menu-item index="/">
+            <el-icon><DataAnalysis /></el-icon>
+            <span>仪表盘</span>
+          </el-menu-item>
 
-        <div class="nav-section">报表管理</div>
+          <el-menu-item-group v-if="financeStore.reports.length > 0">
+            <template #title>
+              <span class="group-title">报表管理</span>
+            </template>
+          </el-menu-item-group>
 
-        <template v-for="report in financeStore.reports" :key="report.id">
-          <div class="nav-group">
-            <div class="nav-group-title">
-              <span
-                class="badge"
-                :class="
-                  report.type === 'PERSONAL' ? 'badge-personal' : 'badge-family'
-                "
-              >
-                {{ report.type === "PERSONAL" ? "个人" : "家庭" }}
-              </span>
-              {{ report.name }}
+          <template v-for="report in financeStore.reports" :key="report.id">
+            <el-sub-menu :index="`report-${report.id}`">
+              <template #title>
+                <el-tag
+                  :type="report.type === 'PERSONAL' ? 'warning' : 'success'"
+                  size="small"
+                  effect="plain"
+                  style="margin-right: 8px"
+                >
+                  {{ report.type === "PERSONAL" ? "个人" : "家庭" }}
+                </el-tag>
+                <span>{{ report.name }}</span>
+              </template>
+              <el-menu-item :index="`/balance-sheet/${report.id}`">
+                <el-icon><Document /></el-icon>
+                <span>资产负债表</span>
+              </el-menu-item>
+              <el-menu-item :index="`/income-expense/${report.id}`">
+                <el-icon><Money /></el-icon>
+                <span>收入支出表</span>
+              </el-menu-item>
+              <el-menu-item :index="`/cashflow/${report.id}`">
+                <el-icon><TrendCharts /></el-icon>
+                <span>现金流表</span>
+              </el-menu-item>
+              <el-menu-item :index="`/charts/${report.id}`">
+                <el-icon><PieChart /></el-icon>
+                <span>财务图表</span>
+              </el-menu-item>
+            </el-sub-menu>
+          </template>
+        </el-menu>
+
+        <div class="sidebar-footer">
+          <el-menu class="sidebar-menu">
+            <el-menu-item index="/profile">
+              <el-icon><User /></el-icon>
+              <span>{{ authStore.user?.username || "个人中心" }}</span>
+            </el-menu-item>
+            <el-menu-item @click="handleLogout" class="logout-item">
+              <el-icon><SwitchButton /></el-icon>
+              <span>退出登录</span>
+            </el-menu-item>
+          </el-menu>
+        </div>
+      </el-aside>
+
+      <!-- 移动端抽屉菜单 -->
+      <el-drawer
+        v-model="mobileMenuOpen"
+        direction="ltr"
+        :size="280"
+        :show-close="false"
+        class="mobile-drawer"
+      >
+        <template #header>
+          <div class="drawer-header">
+            <div class="logo">
+              <span class="logo-icon">💰</span>
+              <span class="logo-text">CashFlow</span>
             </div>
-            <router-link
-              :to="`/balance-sheet/${report.id}`"
-              class="nav-item sub"
-              @click="sidebarOpen = false"
-            >
-              <span class="nav-icon">📋</span>
-              <span>资产负债表</span>
-            </router-link>
-            <router-link
-              :to="`/income-expense/${report.id}`"
-              class="nav-item sub"
-              @click="sidebarOpen = false"
-            >
-              <span class="nav-icon">💵</span>
-              <span>收入支出表</span>
-            </router-link>
-            <router-link
-              :to="`/cashflow/${report.id}`"
-              class="nav-item sub"
-              @click="sidebarOpen = false"
-            >
-              <span class="nav-icon">📈</span>
-              <span>现金流表</span>
-            </router-link>
-            <router-link
-              :to="`/charts/${report.id}`"
-              class="nav-item sub"
-              @click="sidebarOpen = false"
-            >
-              <span class="nav-icon">📊</span>
-              <span>财务图表</span>
-            </router-link>
           </div>
         </template>
-      </nav>
-
-      <div class="sidebar-footer">
-        <router-link
-          to="/profile"
-          class="nav-item"
-          @click="sidebarOpen = false"
+        <el-menu
+          :default-active="activeMenu"
+          class="mobile-menu"
+          router
+          @select="mobileMenuOpen = false"
         >
-          <span class="nav-icon">👤</span>
-          <span>{{ authStore.user?.username || "个人中心" }}</span>
-        </router-link>
-        <button class="nav-item logout-btn" @click="handleLogout">
-          <span class="nav-icon">🚪</span>
-          <span>退出登录</span>
-        </button>
-      </div>
-    </aside>
+          <el-menu-item index="/">
+            <el-icon><DataAnalysis /></el-icon>
+            <span>仪表盘</span>
+          </el-menu-item>
 
-    <!-- 遮罩 (移动端) -->
-    <div
-      class="sidebar-backdrop"
-      v-if="sidebarOpen"
-      @click="sidebarOpen = false"
-    ></div>
+          <template v-for="report in financeStore.reports" :key="report.id">
+            <el-sub-menu :index="`report-${report.id}`">
+              <template #title>
+                <el-tag
+                  :type="report.type === 'PERSONAL' ? 'warning' : 'success'"
+                  size="small"
+                  effect="plain"
+                  style="margin-right: 8px"
+                >
+                  {{ report.type === "PERSONAL" ? "个人" : "家庭" }}
+                </el-tag>
+                <span>{{ report.name }}</span>
+              </template>
+              <el-menu-item :index="`/balance-sheet/${report.id}`">
+                <el-icon><Document /></el-icon>
+                <span>资产负债表</span>
+              </el-menu-item>
+              <el-menu-item :index="`/income-expense/${report.id}`">
+                <el-icon><Money /></el-icon>
+                <span>收入支出表</span>
+              </el-menu-item>
+              <el-menu-item :index="`/cashflow/${report.id}`">
+                <el-icon><TrendCharts /></el-icon>
+                <span>现金流表</span>
+              </el-menu-item>
+              <el-menu-item :index="`/charts/${report.id}`">
+                <el-icon><PieChart /></el-icon>
+                <span>财务图表</span>
+              </el-menu-item>
+            </el-sub-menu>
+          </template>
 
-    <!-- 主要内容区域 -->
-    <main class="main-content">
-      <header class="top-bar">
-        <button class="menu-btn" @click="sidebarOpen = !sidebarOpen">☰</button>
-        <div class="top-bar-right">
-          <span class="greeting">{{ greeting }}</span>
-        </div>
-      </header>
-      <div class="content-area">
-        <router-view />
-      </div>
-    </main>
+          <el-divider />
+          <el-menu-item index="/profile">
+            <el-icon><User /></el-icon>
+            <span>{{ authStore.user?.username || "个人中心" }}</span>
+          </el-menu-item>
+          <el-menu-item @click="handleLogout" class="logout-item">
+            <el-icon><SwitchButton /></el-icon>
+            <span>退出登录</span>
+          </el-menu-item>
+        </el-menu>
+      </el-drawer>
 
-    <!-- 悬浮词典球 -->
-    <router-link to="/glossary" class="floating-glossary" title="金融名词解析">
-      <span class="glossary-icon">📖</span>
-      <span class="glossary-text">名词解析</span>
-    </router-link>
-    </div>
+      <!-- 主要内容区域 -->
+      <el-container class="main-container">
+        <el-header class="top-bar">
+          <el-button
+            class="menu-btn"
+            :icon="'Menu'"
+            text
+            @click="mobileMenuOpen = true"
+          />
+          <div class="top-bar-right">
+            <span class="greeting">{{ greeting }}</span>
+          </div>
+        </el-header>
+        <el-main class="content-area">
+          <router-view />
+        </el-main>
+      </el-container>
+
+      <!-- 悬浮词典球 -->
+      <router-link to="/glossary" class="floating-glossary" title="金融名词解析">
+        <span class="glossary-icon">📖</span>
+        <span class="glossary-text">名词解析</span>
+      </router-link>
+    </el-container>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 import { useFinanceStore } from "../stores/finance";
 import WealthParticles from "./WealthParticles.vue";
+import {
+  DataAnalysis,
+  Document,
+  Money,
+  TrendCharts,
+  PieChart,
+  User,
+  SwitchButton
+} from '@element-plus/icons-vue';
 
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 const financeStore = useFinanceStore();
-const sidebarOpen = ref(false);
+const mobileMenuOpen = ref(false);
+const isCollapsed = ref(false);
+
+const sidebarWidth = computed(() => isCollapsed.value ? '64px' : '260px');
+const activeMenu = computed(() => route.path);
 
 const greeting = computed(() => {
   const hour = new Date().getHours();
@@ -147,7 +226,6 @@ onMounted(() => {
 
 <style scoped>
 .app-layout {
-  display: flex;
   min-height: 100vh;
   position: relative;
   z-index: 1;
@@ -156,11 +234,10 @@ onMounted(() => {
 
 /* ===== 侧边栏 ===== */
 .sidebar {
-  width: 260px;
-  background: rgba(15, 23, 42, 0.4);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-right: 1px solid var(--color-border);
+  border-right: 1px solid #E8D5A3;
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -168,21 +245,21 @@ onMounted(() => {
   left: 0;
   bottom: 0;
   z-index: 100;
-  transition: transform 0.3s ease;
+  transition: width 0.3s ease;
 }
 
 .sidebar-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.2rem 1.2rem 1rem;
-  border-bottom: 1px solid var(--color-border);
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid #F0E8D0;
 }
 
 .logo {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 8px;
 }
 
 .logo-icon {
@@ -190,126 +267,75 @@ onMounted(() => {
 }
 
 .logo-text {
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   font-weight: 800;
-  background: linear-gradient(135deg, var(--color-primary), #a78bfa);
+  background: linear-gradient(135deg, #D4AF37, #B8860B);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: -0.02em;
 }
 
-.sidebar-close {
-  display: none;
-  background: none;
-  border: none;
-  color: var(--color-text-muted);
-  font-size: 1.2rem;
-  cursor: pointer;
+.collapse-btn {
+  color: #909399;
 }
 
-.sidebar-nav {
+.collapse-btn:hover {
+  color: #D4AF37;
+}
+
+.sidebar-menu {
+  border: none !important;
+  background: transparent !important;
   flex: 1;
   overflow-y: auto;
-  padding: 0.8rem 0;
 }
 
-.nav-section {
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--color-text-muted);
-  padding: 1rem 1.2rem 0.4rem;
+.sidebar-menu:not(.el-menu--collapse) {
+  width: 100%;
 }
 
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  padding: 0.6rem 1.2rem;
-  color: var(--color-text-secondary);
-  font-size: 0.88rem;
-  font-weight: 500;
-  border-radius: var(--radius-md);
-  margin: 0.15rem 0.6rem;
-  transition: var(--transition);
-  text-decoration: none;
-  cursor: pointer;
-  border: none;
-  background: none;
-  width: calc(100% - 1.2rem);
-  text-align: left;
-}
-
-.nav-item:hover {
-  background: hsla(var(--h-primary), var(--s-primary), var(--l-primary), 0.08);
-  color: #fff;
-  transform: translateX(4px);
-}
-
-.nav-item.router-link-active,
-.nav-item.router-link-exact-active {
-  background: linear-gradient(90deg, var(--color-primary-bg) 0%, transparent 100%);
-  color: var(--color-primary);
-  border-left: 2px solid var(--color-primary);
-  border-radius: 0 8px 8px 0;
-  margin-left: 0;
-  width: calc(100% - 0.6rem);
-}
-
-.nav-item.sub {
-  padding-left: 2.4rem;
-  font-size: 0.82rem;
-}
-
-.nav-icon {
-  font-size: 1.05rem;
-  width: 1.4rem;
-  text-align: center;
-}
-
-.nav-group {
-  margin-bottom: 0.3rem;
-}
-
-.nav-group-title {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1.2rem;
-  font-size: 0.82rem;
+.group-title {
+  font-size: 0.75rem;
   font-weight: 600;
-  color: var(--color-text);
+  color: #909399;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .sidebar-footer {
-  border-top: 1px solid var(--color-border);
-  padding: 0.5rem 0;
+  border-top: 1px solid #F0E8D0;
+  padding-top: 8px;
 }
 
-.logout-btn {
-  color: var(--color-danger) !important;
+.logout-item {
+  color: #ff4d4f !important;
+}
+
+.logout-item:hover {
+  background: rgba(255, 77, 79, 0.1) !important;
 }
 
 /* ===== 主内容区域 ===== */
-.main-content {
-  flex: 1;
+.main-container {
   margin-left: 260px;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+  transition: margin-left 0.3s ease;
+}
+
+.sidebar-collapsed ~ .main-container {
+  margin-left: 64px;
 }
 
 .top-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--color-border);
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
+  padding: 0 24px;
+  border-bottom: 1px solid #E8D5A3;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  height: 60px;
   position: sticky;
   top: 0;
   z-index: 50;
@@ -317,67 +343,41 @@ onMounted(() => {
 
 .menu-btn {
   display: none;
-  background: none;
-  border: none;
-  color: var(--color-text);
-  font-size: 1.4rem;
-  cursor: pointer;
-  padding: 0.3rem;
+  font-size: 1.25rem;
+  color: #333;
 }
 
 .greeting {
   font-size: 0.88rem;
-  color: var(--color-text-secondary);
+  color: #666;
 }
 
 .content-area {
-  flex: 1;
-  padding: 1.5rem;
+  padding: 24px;
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
+  --el-main-padding: 0;
 }
 
-.sidebar-backdrop {
-  display: none;
+/* ===== 移动端抽屉 ===== */
+.mobile-drawer :deep(.el-drawer__header) {
+  margin-bottom: 0;
+  padding: 16px 20px;
+  border-bottom: 1px solid #F0E8D0;
 }
 
-/* ===== 移动端适配 ===== */
-@media (max-width: 768px) {
-  .sidebar {
-    transform: translateX(-100%);
-  }
+.mobile-drawer :deep(.el-drawer__body) {
+  padding: 0;
+}
 
-  .sidebar.open {
-    transform: translateX(0);
-  }
+.drawer-header {
+  display: flex;
+  align-items: center;
+}
 
-  .sidebar-close {
-    display: block;
-  }
-
-  .sidebar-backdrop {
-    display: block;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 99;
-  }
-
-  .main-content {
-    margin-left: 0;
-  }
-
-  .menu-btn {
-    display: block;
-  }
-
-  .content-area {
-    padding: 1rem;
-  }
+.mobile-menu {
+  border: none !important;
 }
 
 /* ===== 悬浮词典球 ===== */
@@ -387,25 +387,25 @@ onMounted(() => {
   bottom: 2.5rem;
   width: 60px;
   height: 60px;
-  background: linear-gradient(135deg, var(--color-primary) 0%, #818cf8 100%);
+  background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);
   border-radius: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 8px 32px hsla(var(--h-primary), var(--s-primary), var(--l-primary), 0.4);
+  box-shadow: 0 8px 32px rgba(212, 175, 55, 0.4);
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   z-index: 1000;
   text-decoration: none;
   overflow: hidden;
-  border: 1px solid hsla(0, 0%, 100%, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .floating-glossary::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at center, hsla(0,0%,100%,0.3) 0%, transparent 70%);
+  background: radial-gradient(circle at center, rgba(255,255,255,0.3) 0%, transparent 70%);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -418,7 +418,7 @@ onMounted(() => {
   width: 160px;
   border-radius: 30px;
   transform: scale(1.05) translateY(-5px);
-  box-shadow: 0 12px 40px hsla(var(--h-primary), var(--s-primary), var(--l-primary), 0.5);
+  box-shadow: 0 12px 40px rgba(212, 175, 55, 0.5);
 }
 
 .glossary-icon {
@@ -440,17 +440,36 @@ onMounted(() => {
 .floating-glossary:hover .glossary-text {
   opacity: 1;
   width: auto;
-  margin-left: 0.5rem;
+  margin-left: 8px;
 }
 
+/* ===== 移动端适配 ===== */
 @media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+
+  .main-container {
+    margin-left: 0 !important;
+  }
+
+  .menu-btn {
+    display: flex;
+  }
+
+  .content-area {
+    padding: 16px;
+  }
+
   .floating-glossary {
     right: 1rem;
     bottom: 1rem;
   }
+  
   .floating-glossary:hover {
-    width: 56px; /* 移动端不展开，保持简洁 */
+    width: 60px;
   }
+  
   .floating-glossary:hover .glossary-text {
     display: none;
   }

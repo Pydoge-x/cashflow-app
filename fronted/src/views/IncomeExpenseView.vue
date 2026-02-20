@@ -2,273 +2,274 @@
   <div class="income-expense">
     <div class="page-header">
       <h1>💵 收入支出表</h1>
-      <button class="btn btn-primary" @click="openAddModal">＋ 添加条目</button>
+      <el-button type="primary" @click="openAddModal">
+        <el-icon><Plus /></el-icon>
+        添加条目
+      </el-button>
     </div>
 
     <!-- 汇总区域 -->
     <div class="summary-grid">
-      <div class="summary-card" style="--accent: #22c55e">
+      <el-card class="summary-card" shadow="hover" style="--accent: #52c41a">
         <div class="label">总收入</div>
-        <div class="value" style="color: var(--color-success)">
+        <div class="value" style="color: #52c41a">
           ¥{{ formatNum(totalIncome) }}
         </div>
-      </div>
-      <div class="summary-card" style="--accent: #ef4444">
+      </el-card>
+      <el-card class="summary-card" shadow="hover" style="--accent: #ff4d4f">
         <div class="label">总支出</div>
-        <div class="value" style="color: var(--color-danger)">
+        <div class="value" style="color: #ff4d4f">
           ¥{{ formatNum(totalExpense) }}
         </div>
-      </div>
-      <div class="summary-card" style="--accent: #6366f1">
+      </el-card>
+      <el-card class="summary-card" shadow="hover" style="--accent: #D4AF37">
         <div class="label">结余</div>
         <div
           class="value"
-          :style="{
-            color:
-              balance >= 0 ? 'var(--color-success)' : 'var(--color-danger)',
-          }"
+          :style="{ color: balance >= 0 ? '#52c41a' : '#ff4d4f' }"
         >
           ¥{{ formatNum(balance) }}
         </div>
-      </div>
+      </el-card>
     </div>
 
     <div v-if="financeStore.loading" class="loading-spinner"></div>
 
     <template v-else>
       <!-- 收入部分 -->
-      <div class="card" style="margin-bottom: 1.5rem">
-        <div class="card-header">
-          <h3>📥 收入</h3>
-          <span class="badge badge-income">¥{{ formatNum(totalIncome) }}</span>
-        </div>
+      <el-card class="section-card" shadow="hover">
+        <template #header>
+          <div class="card-header">
+            <span>📥 收入</span>
+            <el-tag type="success" effect="plain">¥{{ formatNum(totalIncome) }}</el-tag>
+          </div>
+        </template>
 
         <template v-for="(cat, catKey) in incomeCategories" :key="catKey">
           <div class="section-divider">{{ cat.label }}</div>
-          <table
-            class="data-table"
+          <el-table
             v-if="getItems('INCOME', catKey).length > 0"
+            :data="getItems('INCOME', catKey)"
+            stripe
+            style="width: 100%"
           >
-            <thead>
-              <tr>
-                <th>名称</th>
-                <th>金额 (¥/月)</th>
-                <th>备注</th>
-                <th style="text-align: right">操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="item in getItems('INCOME', catKey)" :key="item.id">
-                <td>{{ item.name }}</td>
-                <td>
-                  <span class="amount positive">{{
-                    formatNum(item.amount)
-                  }}</span>
-                </td>
-                <td style="color: var(--color-text-muted); font-size: 0.82rem">
-                  {{ item.note || "-" }}
-                </td>
-                <td>
-                  <div class="actions">
-                    <button
-                      class="btn btn-secondary btn-sm"
-                      @click="openEditModal(item)"
-                    >
-                      编辑
-                    </button>
-                    <button
-                      class="btn btn-danger btn-sm"
-                      @click="handleDelete(item.id)"
-                    >
-                      删除
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <div v-else class="empty-row">暂无数据</div>
+            <el-table-column prop="name" label="名称" />
+            <el-table-column label="金额 (¥/月)">
+              <template #default="{ row }">
+                <span class="amount positive">{{ formatNum(row.amount) }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="note" label="备注">
+              <template #default="{ row }">
+                <span style="color: #909399">{{ row.note || "-" }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" width="140" align="right">
+              <template #default="{ row }">
+                <el-button type="primary" size="small" text color="white" @click="openEditModal(row)">编辑</el-button>
+                <el-popconfirm
+                  title="确定删除此条目？"
+                  confirm-button-text="确定"
+                  cancel-button-text="取消"
+                  @confirm="handleDelete(row.id)"
+                >
+                  <template #reference>
+                    <el-button type="danger" size="small"  color="white" text>删除</el-button>
+                  </template>
+                </el-popconfirm>
+              </template>
+            </el-table-column>
+          </el-table>
+          <el-empty v-else description="暂无数据" :image-size="60" />
         </template>
-      </div>
+      </el-card>
 
       <!-- 支出部分 -->
-      <div class="card">
-        <div class="card-header">
-          <h3>📤 支出</h3>
-          <span class="badge badge-expense"
-            >¥{{ formatNum(totalExpense) }}</span
-          >
-        </div>
+      <el-card class="section-card" shadow="hover" style="margin-top: 24px">
+        <template #header>
+          <div class="card-header">
+            <span>📤 支出</span>
+            <el-tag type="danger" effect="plain">¥{{ formatNum(totalExpense) }}</el-tag>
+          </div>
+        </template>
 
         <template v-for="(cat, catKey) in expenseCategories" :key="catKey">
           <div class="section-divider">{{ cat.label }}</div>
-          <table
-            class="data-table"
+          <el-table
             v-if="getItems('EXPENSE', catKey).length > 0"
+            :data="getItems('EXPENSE', catKey)"
+            stripe
+            style="width: 100%"
           >
-            <thead>
-              <tr>
-                <th>名称</th>
-                <th>金额 (¥)</th>
-                <th>利息额 (¥/月)</th>
-                <th>备注</th>
-                <th style="text-align: right">操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="item in getItems('EXPENSE', catKey)" :key="item.id">
-                <td>{{ item.name }}</td>
-                <td>
-                  <span class="amount negative">{{
-                    formatNum(item.amount)
-                  }}</span>
-                </td>
-                <td>
-                  <span v-if="item.isInterest" class="amount" style="color: var(--color-warning)">
-                    {{ formatNum(item.interestAmount || 0) }}
-                  </span>
-                  <span v-else style="color: var(--color-text-muted)">-</span>
-                </td>
-                <td style="color: var(--color-text-muted); font-size: 0.82rem">
-                  {{ item.note || "-" }}
-                </td>
-                <td>
-                  <div class="actions">
-                    <button
-                      class="btn btn-secondary btn-sm"
-                      @click="openEditModal(item)"
-                    >
-                      编辑
-                    </button>
-                    <button
-                      class="btn btn-danger btn-sm"
-                      @click="handleDelete(item.id)"
-                    >
-                      删除
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <div v-else class="empty-row">暂无数据</div>
+            <el-table-column prop="name" label="名称" />
+            <el-table-column label="金额 (¥)">
+              <template #default="{ row }">
+                <span class="amount negative">{{ formatNum(row.amount) }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="利息额 (¥/月)">
+              <template #default="{ row }">
+                <span v-if="row.isInterest" style="color: #faad14">{{ formatNum(row.interestAmount || 0) }}</span>
+                <span v-else style="color: #c0c4cc">-</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="note" label="备注">
+              <template #default="{ row }">
+                <span style="color: #909399">{{ row.note || "-" }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" width="140" align="right">
+              <template #default="{ row }">
+                <el-button 
+                  type="primary" 
+                  size="small" 
+                  text 
+                  color="white"
+                  @click="openEditModal(row)"
+                  :disabled="row.isSync"
+                >
+                  编辑
+                </el-button>
+                <el-popconfirm
+                  v-if="!row.isSync"
+                  title="确定删除此条目？"
+                  confirm-button-text="确定"
+                  cancel-button-text="取消"
+                  @confirm="handleDelete(row.id)"
+                >
+                  <template #reference>
+                    <el-button type="danger" size="small" text color="white">删除</el-button>
+                  </template>
+                </el-popconfirm>
+                <el-tooltip v-else content="来自资产负债表的同步项，无法直接删除" placement="top">
+                  <el-button type="info" size="small" text disabled>同步项</el-button>
+                </el-tooltip>
+              </template>
+            </el-table-column>
+          </el-table>
+          <el-empty v-else description="暂无数据" :image-size="60" />
         </template>
-      </div>
+      </el-card>
     </template>
 
     <!-- 添加/编辑弹窗 -->
-    <div class="modal-overlay" v-if="showModal" @click.self="showModal = false">
-      <div class="modal">
-        <h3>{{ editingItem ? "编辑条目" : "添加条目" }}</h3>
-        <form @submit.prevent="handleSubmit">
-          <div class="form-row">
-            <div class="form-group">
-              <label>类型</label>
-              <select v-model="form.type" required>
-                <option value="INCOME">收入</option>
-                <option value="EXPENSE">支出</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>分类</label>
-              <select v-model="form.category" required>
+    <el-dialog
+      v-model="showModal"
+      :title="editingItem ? '编辑条目' : '添加条目'"
+      width="500px"
+      :close-on-click-modal="false"
+    >
+      <el-form
+        ref="formRef"
+        :model="form"
+        :rules="formRules"
+        label-position="top"
+      >
+        <el-row :gutter="16">
+          <el-col :span="12">
+            <el-form-item label="类型" prop="type">
+              <el-select v-model="form.type" style="width: 100%">
+                <el-option label="收入" value="INCOME" />
+                <el-option label="支出" value="EXPENSE" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="分类" prop="category">
+              <el-select v-model="form.category" style="width: 100%">
                 <template v-if="form.type === 'INCOME'">
-                  <option value="LABOR_INCOME">劳动收入（主动收入）</option>
-                  <option value="ASSET_INCOME">资产收入（被动收入）</option>
+                  <el-option label="劳动收入（主动收入）" value="LABOR_INCOME" />
+                  <el-option label="资产收入（被动收入）" value="ASSET_INCOME" />
                 </template>
                 <template v-else>
-                  <option value="LIVING_EXPENSE">生活支出</option>
-                  <option value="ASSET_EXPENSE">资产性支出</option>
-                  <option value="LOAN_REPAYMENT">借款还款</option>
+                  <el-option label="生活支出" value="LIVING_EXPENSE" />
+                  <el-option label="资产性支出" value="ASSET_EXPENSE" />
+                  <el-option label="借款还款" value="LOAN_REPAYMENT" />
                 </template>
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>名称</label>
-            <input
-              v-model="form.name"
-              type="text"
-              placeholder="如：工资收入"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label>月金额 (¥)</label>
-            <input
-              v-model.number="form.amount"
-              type="number"
-              step="0.01"
-              min="0"
-              placeholder="0.00"
-              required
-            />
-          </div>
-            <div class="form-group" v-if="form.type === 'EXPENSE'">
-              <label>是否为利息支出</label>
-              <div class="checkbox-group">
-                <input type="checkbox" v-model="form.isInterest" id="ieIsInterest" />
-                <label for="ieIsInterest">标记为利息（计入现金流）</label>
-              </div>
-            </div>
-            <div class="form-group" v-if="form.isInterest">
-              <label>利息金额 (¥)</label>
-              <input type="number" v-model.number="form.interestAmount" step="0.01" placeholder="请输入利息金额" />
-            </div>
-          <div class="form-group">
-            <label>备注</label>
-            <input v-model="form.note" type="text" placeholder="选填" />
-          </div>
-          <div class="modal-actions">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              @click="showModal = false"
-            >
-              取消
-            </button>
-            <button type="submit" class="btn btn-primary">
-              {{ editingItem ? "保存" : "添加" }}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-form-item label="名称" prop="name">
+          <el-input v-model="form.name" placeholder="如：工资收入" />
+        </el-form-item>
+        <el-form-item label="月金额 (¥)" prop="amount">
+          <el-input-number
+            v-model="form.amount"
+            :min="0"
+            :precision="2"
+            :step="1000"
+            style="width: 100%"
+            controls-position="right"
+          />
+        </el-form-item>
+        <el-form-item v-if="form.type === 'EXPENSE'">
+          <el-checkbox v-model="form.isInterest">标记为利息（计入现金流）</el-checkbox>
+        </el-form-item>
+        <el-form-item v-if="form.isInterest" label="利息金额 (¥)">
+          <el-input-number
+            v-model="form.interestAmount"
+            :min="0"
+            :precision="2"
+            :step="100"
+            style="width: 100%"
+            controls-position="right"
+          />
+        </el-form-item>
+        <el-form-item label="备注">
+          <el-input v-model="form.note" placeholder="选填" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="showModal = false">取消</el-button>
+        <el-button type="primary" @click="handleSubmit" :loading="submitting">
+          {{ editingItem ? "保存" : "添加" }}
+        </el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, reactive, computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useFinanceStore } from "../stores/finance";
+import { Plus } from '@element-plus/icons-vue';
 
 const route = useRoute();
 const financeStore = useFinanceStore();
 const reportId = computed(() => route.params.reportId);
 
 const showModal = ref(false);
+const formRef = ref(null);
+const submitting = ref(false);
 const editingItem = ref(null);
-const form = ref({
+const form = reactive({
   type: "INCOME",
   category: "LABOR_INCOME",
   name: "",
-  amount: "",
+  amount: 0,
   isInterest: false,
   interestAmount: 0,
   note: "",
 });
 
-// 切换类型时重设分类
+const formRules = {
+  type: [{ required: true, message: "请选择类型", trigger: "change" }],
+  category: [{ required: true, message: "请选择分类", trigger: "change" }],
+  name: [{ required: true, message: "请输入名称", trigger: "blur" }],
+  amount: [{ required: true, message: "请输入金额", trigger: "blur" }],
+};
+
 watch(
-  () => form.value.type,
+  () => form.type,
   (newType) => {
-    form.value.category =
-      newType === "INCOME" ? "LABOR_INCOME" : "LIVING_EXPENSE";
+    form.category = newType === "INCOME" ? "LABOR_INCOME" : "LIVING_EXPENSE";
     if (newType === "INCOME") {
-      form.value.isInterest = false;
-      form.value.interestAmount = 0;
+      form.isInterest = false;
+      form.interestAmount = 0;
     }
-  },
+  }
 );
 
 const incomeCategories = {
@@ -283,13 +284,10 @@ const expenseCategories = {
 };
 
 function getItems(type, category) {
-  // 获取原始数据
   const originalItems = financeStore.incomeExpense.filter(
     (i) => i.type === type && i.category === category
   );
 
-
-  // 2. 资产性支出部分：自动加入所有负债
   if (type === "EXPENSE" && category === "ASSET_EXPENSE") {
     const debts = financeStore.balanceSheet.filter((i) =>
       ["CONSUMER_DEBT", "INVESTMENT_DEBT", "PERSONAL_DEBT"].includes(i.category)
@@ -300,7 +298,7 @@ function getItems(type, category) {
       return existing || {
         id: `sync-debt-${debt.id}`,
         name: debt.name,
-        amount: debt.amount || 0, // 恢复显示本金金额
+        amount: debt.amount || 0,
         note: `来自负债：${debt.name}`,
         isSync: true,
         type: "EXPENSE",
@@ -343,7 +341,6 @@ const totalIncome = computed(() => {
 
 const totalExpense = computed(() => {
   return allExpenseItems.value.reduce((s, i) => {
-    // 资产性支出分类只计算利息部分，排除本金
     if (i.category === 'ASSET_EXPENSE' || i.category === 'LOAN_REPAYMENT') {
       return s + (i.interestAmount || 0);
     }
@@ -362,73 +359,71 @@ function formatNum(n) {
 
 function openAddModal() {
   editingItem.value = null;
-  form.value = {
+  Object.assign(form, {
     type: "INCOME",
     category: "LABOR_INCOME",
     name: "",
-    amount: "",
+    amount: 0,
     note: "",
     isInterest: false,
     interestAmount: 0,
-  };
+  });
   showModal.value = true;
 }
 
 function openEditModal(item) {
   editingItem.value = item;
-  // 如果是同步项，去掉临时 ID
   if (typeof item.id === 'string' && item.id.startsWith('sync-')) {
-    form.value = {
-      ...item,
-      id: undefined, // 提交时作为新条目
-    };
+    Object.assign(form, { ...item, id: undefined });
   } else {
-    form.value = {
+    Object.assign(form, {
       ...item,
       isInterest: item.isInterest || false,
       interestAmount: item.interestAmount || 0,
-    };
+    });
   }
   showModal.value = true;
 }
 
 async function handleSubmit() {
-  let savedItem;
-  if (editingItem.value && editingItem.value.id && !editingItem.value.isSync) {
-    savedItem = await financeStore.updateIncomeExpenseItem(
-      reportId.value,
-      editingItem.value.id,
-      form.value,
-    );
-  } else {
-    savedItem = await financeStore.addIncomeExpenseItem(reportId.value, form.value);
-  }
+  const valid = await formRef.value.validate().catch(() => false);
+  if (!valid) return;
 
-  // 金额互通逻辑：如果资产负债表中有同名项，且为负债项，则同步更新
-  const bsItem = financeStore.balanceSheet.find(i => i.name === form.value.name);
-  const debtCategories = ["CONSUMER_DEBT", "INVESTMENT_DEBT", "PERSONAL_DEBT"];
-  if (bsItem && debtCategories.includes(bsItem.category)) {
-    await financeStore.updateBalanceSheetItem(reportId.value, bsItem.id, {
-      ...bsItem,
-      amount: form.value.amount, // If user edits principal in IE, it updates BS principal
-      isInterest: form.value.isInterest,
-      interestAmount: form.value.interestAmount // Use form.interestAmount for BS sync
-    });
-  }
+  submitting.value = true;
+  try {
+    let savedItem;
+    if (editingItem.value && editingItem.value.id && !editingItem.value.isSync) {
+      savedItem = await financeStore.updateIncomeExpenseItem(
+        reportId.value,
+        editingItem.value.id,
+        { ...form }
+      );
+    } else {
+      savedItem = await financeStore.addIncomeExpenseItem(reportId.value, { ...form });
+    }
 
-  showModal.value = false;
+    const bsItem = financeStore.balanceSheet.find(i => i.name === form.name);
+    const debtCategories = ["CONSUMER_DEBT", "INVESTMENT_DEBT", "PERSONAL_DEBT"];
+    if (bsItem && debtCategories.includes(bsItem.category)) {
+      await financeStore.updateBalanceSheetItem(reportId.value, bsItem.id, {
+        ...bsItem,
+        amount: form.amount,
+        isInterest: form.isInterest,
+        interestAmount: form.interestAmount
+      });
+    }
+
+    showModal.value = false;
+  } finally {
+    submitting.value = false;
+  }
 }
 
 async function handleDelete(itemId) {
   if (typeof itemId === "string" && itemId.startsWith("sync-")) {
-    alert(
-      "这是来自资产负债表的自动同步项，无法直接删除。请前往资产负债表修改。",
-    );
     return;
   }
-  if (confirm("确定删除此条目？")) {
-    await financeStore.deleteIncomeExpenseItem(reportId.value, itemId);
-  }
+  await financeStore.deleteIncomeExpenseItem(reportId.value, itemId);
 }
 
 onMounted(async () => {
@@ -440,24 +435,56 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.empty-row {
-  text-align: center;
-  padding: 1rem;
-  color: var(--color-text-muted);
-  font-size: 0.85rem;
+.section-card {
+  border-radius: 16px;
 }
 
-.checkbox-label {
+.card-header {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  font-size: 0.88rem;
-  color: var(--color-text);
+  justify-content: space-between;
+  font-weight: 600;
+  font-size: 1.1rem;
 }
 
-.checkbox-label input[type="checkbox"] {
-  width: auto;
-  accent-color: var(--color-primary);
+.summary-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.summary-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--accent, #D4AF37);
+}
+
+.summary-card .label {
+  font-size: 0.78rem;
+  color: #909399;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+.summary-card .value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.amount {
+  font-weight: 600;
+}
+
+.amount.positive {
+  color: #52c41a;
+}
+
+.amount.negative {
+  color: #ff4d4f;
 }
 </style>

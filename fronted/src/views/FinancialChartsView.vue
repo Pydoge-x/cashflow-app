@@ -2,59 +2,59 @@
   <div class="financial-charts">
     <div class="page-header">
       <h1>📊 财务分析图表</h1>
-      <div class="header-actions">
-        <span class="report-name" v-if="financeStore.currentReport">{{ financeStore.currentReport.name }}</span>
-      </div>
+      <el-tag v-if="financeStore.currentReport" effect="plain" type="warning">
+        {{ financeStore.currentReport.name }}
+      </el-tag>
     </div>
 
     <div v-if="financeStore.loading" class="loading-spinner"></div>
 
     <div v-else class="charts-grid">
       <!-- 收入构成 -->
-      <div class="card chart-card">
-        <div class="card-header">
-          <h3>📥 收入构成分析</h3>
-        </div>
+      <el-card class="chart-card" shadow="hover">
+        <template #header>
+          <span class="card-title">📥 收入构成分析</span>
+        </template>
         <div class="chart-container">
           <v-chart class="chart" :option="incomeOption" autoresize />
         </div>
-      </div>
+      </el-card>
 
       <!-- 支出构成 -->
-      <div class="card chart-card">
-        <div class="card-header">
-          <h3>📤 支出构成分析</h3>
-        </div>
+      <el-card class="chart-card" shadow="hover">
+        <template #header>
+          <span class="card-title">📤 支出构成分析</span>
+        </template>
         <div class="chart-container">
           <v-chart class="chart" :option="expenseOption" autoresize />
         </div>
-      </div>
+      </el-card>
 
       <!-- 资产构成 -->
-      <div class="card chart-card">
-        <div class="card-header">
-          <h3>💰 资产构成分析</h3>
-        </div>
+      <el-card class="chart-card" shadow="hover">
+        <template #header>
+          <span class="card-title">💰 资产构成分析</span>
+        </template>
         <div class="chart-container">
           <v-chart class="chart" :option="assetOption" autoresize />
         </div>
-      </div>
+      </el-card>
 
       <!-- 负债构成 -->
-      <div class="card chart-card">
-        <div class="card-header">
-          <h3>💳 负债构成分析</h3>
-        </div>
+      <el-card class="chart-card" shadow="hover">
+        <template #header>
+          <span class="card-title">💳 负债构成分析</span>
+        </template>
         <div class="chart-container">
           <v-chart class="chart" :option="debtOption" autoresize />
         </div>
-      </div>
+      </el-card>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted, provide } from "vue";
+import { computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useFinanceStore } from "../stores/finance";
 import { use } from "echarts/core";
@@ -65,9 +65,8 @@ import {
   TooltipComponent,
   LegendComponent,
 } from "echarts/components";
-import VChart, { THEME_KEY } from "vue-echarts";
+import VChart from "vue-echarts";
 
-// 注册 ECharts 组件
 use([
   CanvasRenderer,
   PieChart,
@@ -76,21 +75,16 @@ use([
   LegendComponent,
 ]);
 
-// 设置深色主题（与应用风格匹配）
-provide(THEME_KEY, "dark");
-
 const route = useRoute();
 const financeStore = useFinanceStore();
 const reportId = computed(() => route.params.reportId);
 
-const colors = ["#6366f1", "#22c55e", "#ef4444", "#f59e0b", "#ec4899", "#06b6d4"];
+const colors = ["#D4AF37", "#52c41a", "#ff4d4f", "#faad14", "#818cf8", "#06b6d4"];
 
-// 同步 logic 辅助函数
 function getMergedItems(type, category) {
   const originalItems = financeStore.incomeExpense.filter(
     (i) => i.type === type && i.category === category
   );
-
 
   if (type === "EXPENSE" && category === "ASSET_EXPENSE") {
     const debts = financeStore.balanceSheet.filter((i) =>
@@ -98,7 +92,6 @@ function getMergedItems(type, category) {
     );
     const syncedItems = debts.map((debt) => {
       const existing = originalItems.find((oi) => oi.name === debt.name);
-      // Return interestAmount if it's a sync item
       return existing || { 
         name: debt.name, 
         amount: debt.isInterest ? (debt.interestAmount || 0) : 0 
@@ -111,17 +104,25 @@ function getMergedItems(type, category) {
   return originalItems;
 }
 
-// 通用饼图配置模板
 const getPieOption = (title, data) => ({
   backgroundColor: "transparent",
   tooltip: {
     trigger: "item",
     formatter: "{b}: ¥{c} ({d}%)",
+    backgroundColor: "#fff",
+    borderColor: "#E8D5A3",
+    borderWidth: 1,
+    textStyle: {
+      color: "#333"
+    }
   },
   legend: {
     orient: "vertical",
     left: "left",
-    textStyle: { color: "#9ca3af" },
+    textStyle: { 
+      color: "#666",
+      fontSize: 12
+    },
   },
   series: [
     {
@@ -131,7 +132,7 @@ const getPieOption = (title, data) => ({
       avoidLabelOverlap: false,
       itemStyle: {
         borderRadius: 10,
-        borderColor: "#111827",
+        borderColor: "#fff",
         borderWidth: 2,
       },
       label: {
@@ -143,6 +144,7 @@ const getPieOption = (title, data) => ({
           show: true,
           fontSize: "16",
           fontWeight: "bold",
+          color: "#333"
         },
       },
       labelLine: {
@@ -154,7 +156,6 @@ const getPieOption = (title, data) => ({
   ],
 });
 
-// 收入数据
 const incomeOption = computed(() => {
   const laborTotal = financeStore.incomeExpense
     .filter((i) => i.type === "INCOME" && i.category === "LABOR_INCOME")
@@ -170,7 +171,6 @@ const incomeOption = computed(() => {
   return getPieOption("收入构成", data);
 });
 
-// 支出数据
 const expenseOption = computed(() => {
   const livingTotal = financeStore.incomeExpense
     .filter((i) => i.type === "EXPENSE" && i.category === "LIVING_EXPENSE")
@@ -183,12 +183,10 @@ const expenseOption = computed(() => {
     .filter((i) => i.type === "EXPENSE" && i.category === "LOAN_REPAYMENT")
     .reduce((s, i) => s + i.amount, 0);
 
-  // 借款利息支出 (显式记录)
   const explicitInterestTotal = financeStore.incomeExpense
     .filter((i) => i.type === "EXPENSE" && i.isInterest)
     .reduce((s, i) => s + i.amount, 0);
 
-  // 资产负债表负债中的利息
   const debtInterestTotal = financeStore.balanceSheet
     .filter((i) => ["CONSUMER_DEBT", "INVESTMENT_DEBT", "PERSONAL_DEBT"].includes(i.category) && i.isInterest)
     .reduce((s, i) => s + (i.interestAmount || 0), 0);
@@ -204,7 +202,6 @@ const expenseOption = computed(() => {
   return getPieOption("支出构成", data);
 });
 
-// 资产数据
 const assetOption = computed(() => {
   const data = [
     {
@@ -229,7 +226,6 @@ const assetOption = computed(() => {
   return getPieOption("资产构成", data);
 });
 
-// 负债数据
 const debtOption = computed(() => {
   const data = [
     {
@@ -264,14 +260,27 @@ onMounted(() => {
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-  gap: 1.5rem;
-  margin-top: 1rem;
+  gap: 24px;
+  margin-top: 16px;
 }
 
 .chart-card {
   height: 400px;
   display: flex;
   flex-direction: column;
+  border-radius: 16px;
+}
+
+.chart-card :deep(.el-card__body) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+}
+
+.card-title {
+  font-weight: 600;
+  font-size: 1rem;
 }
 
 .chart-container {
@@ -283,15 +292,6 @@ onMounted(() => {
 .chart {
   width: 100%;
   height: 100%;
-}
-
-.report-name {
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
-  background: var(--color-bg-secondary);
-  padding: 0.4rem 0.8rem;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--color-border);
 }
 
 @media (max-width: 768px) {

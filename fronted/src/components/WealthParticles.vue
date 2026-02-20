@@ -16,10 +16,10 @@ const props = defineProps({
 
 function particleStyle(n) {
   const left = Math.random() * 100;
-  const duration = 15 + Math.random() * 25;
-  const delay = Math.random() * -30;
-  const size = 0.6 + Math.random() * 1.5;
-  const opacity = 0.15 + Math.random() * 0.35;
+  const duration = 20 + Math.random() * 30;
+  const delay = Math.random() * -40;
+  const size = 0.5 + Math.random() * 1.2;
+  const opacity = 0.08 + Math.random() * 0.15;
   
   return {
     left: `${left}%`,
@@ -27,8 +27,7 @@ function particleStyle(n) {
     animationDelay: `${delay}s`,
     fontSize: `${size}rem`,
     opacity: opacity,
-    // Add a bit of horizontal drift
-    '--drift': `${(Math.random() - 0.5) * 100}px`
+    '--drift': `${(Math.random() - 0.5) * 80}px`
   };
 }
 </script>
@@ -47,18 +46,27 @@ function particleStyle(n) {
 
 .wealth-particle {
   position: absolute;
-  color: gold;
+  color: #D4AF37;
   font-family: "serif";
-  filter: blur(0.5px);
-  animation: floatParticle 25s linear infinite;
+  filter: blur(0.3px);
+  animation: floatParticle 30s linear infinite;
+  text-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
 }
 
 @keyframes floatParticle {
   0% { 
     transform: translateY(110vh) translateX(0) rotate(0deg); 
+    opacity: 0;
+  }
+  10% {
+    opacity: var(--particle-opacity, 0.15);
+  }
+  90% {
+    opacity: var(--particle-opacity, 0.15);
   }
   100% { 
-    transform: translateY(-10vh) translateX(var(--drift, 50px)) rotate(360deg); 
+    transform: translateY(-10vh) translateX(var(--drift, 40px)) rotate(360deg); 
+    opacity: 0;
   }
 }
 </style>

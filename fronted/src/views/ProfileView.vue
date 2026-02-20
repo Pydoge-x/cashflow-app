@@ -4,92 +4,118 @@
       <h1>👤 个人信息</h1>
     </div>
 
-    <div class="card" style="max-width: 600px">
-      <form @submit.prevent="handleSave">
-        <div class="form-group">
-          <label>用户名</label>
-          <input
+    <el-card class="profile-card" shadow="hover" style="max-width: 600px">
+      <el-form
+        ref="formRef"
+        :model="form"
+        :rules="formRules"
+        label-position="top"
+        @submit.prevent="handleSave"
+      >
+        <el-form-item label="用户名" prop="username">
+          <el-input
             v-model="form.username"
-            type="text"
             placeholder="请输入用户名"
           />
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>手机号</label>
-            <input v-model="form.phone" type="tel" placeholder="手机号" />
-          </div>
-          <div class="form-group">
-            <label>邮箱</label>
-            <input v-model="form.email" type="email" placeholder="邮箱" />
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>性别</label>
-            <select v-model="form.gender">
-              <option value="">未设置</option>
-              <option value="MALE">男</option>
-              <option value="FEMALE">女</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>年龄</label>
-            <input
-              v-model.number="form.age"
-              type="number"
-              min="1"
-              max="150"
-              placeholder="年龄"
-            />
-          </div>
-        </div>
+        </el-form-item>
+        <el-row :gutter="16">
+          <el-col :span="12">
+            <el-form-item label="手机号">
+              <el-input v-model="form.phone" placeholder="手机号" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="邮箱">
+              <el-input v-model="form.email" placeholder="邮箱" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="16">
+          <el-col :span="12">
+            <el-form-item label="性别">
+              <el-select v-model="form.gender" placeholder="请选择" style="width: 100%">
+                <el-option label="未设置" value="" />
+                <el-option label="男" value="MALE" />
+                <el-option label="女" value="FEMALE" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="年龄">
+              <el-input-number
+                v-model="form.age"
+                :min="1"
+                :max="150"
+                style="width: 100%"
+                controls-position="right"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
 
-        <div v-if="message" class="profile-message" :class="messageType">
-          {{ message }}
-        </div>
+        <el-alert
+          v-if="message"
+          :title="message"
+          :type="messageType"
+          :closable="false"
+          show-icon
+          style="margin-bottom: 16px"
+        />
 
-        <button type="submit" class="btn btn-primary" :disabled="saving">
+        <el-button type="primary" :loading="saving" @click="handleSave">
           {{ saving ? "保存中..." : "保存信息" }}
-        </button>
-      </form>
-    </div>
+        </el-button>
+      </el-form>
+    </el-card>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import { useAuthStore } from "../stores/auth";
 
 const authStore = useAuthStore();
-const form = ref({ username: "", phone: "", email: "", gender: "", age: "" });
+const formRef = ref(null);
+const form = reactive({
+  username: "",
+  phone: "",
+  email: "",
+  gender: "",
+  age: null
+});
 const saving = ref(false);
 const message = ref("");
 const messageType = ref("");
 
+const formRules = {
+  username: [{ required: true, message: "请输入用户名", trigger: "blur" }],
+};
+
 onMounted(async () => {
   try {
     const profile = await authStore.fetchProfile();
-    form.value = {
+    Object.assign(form, {
       username: profile.username || "",
       phone: profile.phone || "",
       email: profile.email || "",
       gender: profile.gender || "",
-      age: profile.age || "",
-    };
+      age: profile.age || null,
+    });
   } catch {
-    // use existing store data
     if (authStore.user) {
-      form.value = { ...authStore.user };
+      Object.assign(form, { ...authStore.user });
     }
   }
 });
 
 async function handleSave() {
+  const valid = await formRef.value.validate().catch(() => false);
+  if (!valid) return;
+
   saving.value = true;
   message.value = "";
   try {
-    await authStore.updateProfile(form.value);
+    await authStore.updateProfile({ ...form });
     message.value = "保存成功！";
     messageType.value = "success";
   } catch (e) {
@@ -102,20 +128,11 @@ async function handleSave() {
 </script>
 
 <style scoped>
-.profile-message {
-  padding: 0.6rem 1rem;
-  border-radius: var(--radius-md);
-  font-size: 0.82rem;
-  margin-bottom: 1rem;
+.profile-card {
+  border-radius: 16px;
 }
 
-.profile-message.success {
-  background: var(--color-success-bg);
-  color: var(--color-success);
-}
-
-.profile-message.error {
-  background: var(--color-danger-bg);
-  color: var(--color-danger);
+.profile-card :deep(.el-card__body) {
+  padding: 32px;
 }
 </style>

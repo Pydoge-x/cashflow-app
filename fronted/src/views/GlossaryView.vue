@@ -5,37 +5,40 @@
         <h1>📖 金融名词解析</h1>
         <p class="subtitle">理解财务术语，掌握您的财富逻辑</p>
       </div>
-      <div class="search-box">
-        <input 
-          v-model="searchQuery" 
-          type="text" 
-          placeholder="搜索关键词 (如：资产、利息)..."
-        />
-      </div>
+      <el-input
+        v-model="searchQuery"
+        placeholder="搜索关键词 (如：资产、利息)..."
+        prefix-icon="Search"
+        clearable
+        style="width: 320px"
+        size="large"
+      />
     </div>
 
     <div class="category-tabs">
-      <button 
-        v-for="cat in categories" 
+      <el-button
+        v-for="cat in categories"
         :key="cat.id"
-        :class="['tab-btn', { active: activeCategory === cat.id }]"
+        :type="activeCategory === cat.id ? 'primary' : 'default'"
+        round
         @click="activeCategory = cat.id"
       >
         {{ cat.icon }} {{ cat.label }}
-      </button>
+      </el-button>
     </div>
 
     <div class="terms-grid">
-      <div 
-        v-for="term in filteredTerms" 
-        :key="term.title" 
+      <el-card
+        v-for="term in filteredTerms"
+        :key="term.title"
         class="term-card"
+        shadow="hover"
       >
         <div class="term-header">
           <span class="term-title">{{ term.title }}</span>
-          <span :class="['category-tag', term.categoryId]">
+          <el-tag :type="getCategoryType(term.categoryId)" effect="plain" size="small">
             {{ getCategoryLabel(term.categoryId) }}
-          </span>
+          </el-tag>
         </div>
         <div class="term-content">
           <p class="description">{{ term.description }}</p>
@@ -44,13 +47,14 @@
             <p>{{ term.examples }}</p>
           </div>
         </div>
-      </div>
+      </el-card>
     </div>
 
-    <div v-if="filteredTerms.length === 0" class="empty-state">
-      <div class="empty-icon">🔍</div>
-      <p>没有找到相关词条</p>
-    </div>
+    <el-empty
+      v-if="filteredTerms.length === 0"
+      description="没有找到相关词条"
+      :image-size="120"
+    />
   </div>
 </template>
 
@@ -109,7 +113,7 @@ const terms = [
   {
     categoryId: 'income',
     title: '劳动/主动收入 (Labor Income)',
-    description: '通过付出体力和脑力劳动获得的报酬，也称“主动收入”。',
+    description: '通过付出体力和脑力劳动获得的报酬，也称"主动收入"。',
     examples: '月薪、奖金、加班费、兼职收入。'
   },
   {
@@ -168,174 +172,100 @@ const filteredTerms = computed(() => {
 function getCategoryLabel(id) {
   return categories.find(c => c.id === id)?.label || '';
 }
+
+function getCategoryType(id) {
+  const typeMap = {
+    asset: 'success',
+    liability: 'danger',
+    income: 'warning',
+    expense: '',
+    concept: 'info'
+  };
+  return typeMap[id] || '';
+}
 </script>
 
 <style scoped>
 .glossary-view {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
-  color: var(--color-text);
   min-height: 100vh;
 }
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2.5rem;
-  gap: 2rem;
-}
-
 .header-content h1 {
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
+  font-size: 1.75rem;
+  margin-bottom: 4px;
   font-weight: 800;
-  background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+  background: linear-gradient(135deg, #333 0%, #D4AF37 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .subtitle {
-  color: var(--color-text-muted);
-  font-size: 1.1rem;
-}
-
-.search-box input {
-  width: 400px;
-  padding: 0.85rem 1.4rem;
-  background: rgba(30, 41, 59, 0.4);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  color: #fff;
+  color: #909399;
   font-size: 1rem;
-  transition: all 0.3s ease;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.search-box input:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
-  outline: none;
 }
 
 .category-tabs {
   display: flex;
-  gap: 0.75rem;
-  margin-bottom: 2rem;
+  gap: 12px;
+  margin-bottom: 24px;
   flex-wrap: wrap;
-}
-
-.tab-btn {
-  padding: 0.6rem 1.2rem;
-  background: var(--color-bg-light);
-  border: 1px solid var(--color-border);
-  border-radius: 99px;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.95rem;
-}
-
-.tab-btn:hover {
-  border-color: var(--color-text-muted);
-}
-
-.tab-btn.active {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
 .terms-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1.5rem;
+  gap: 20px;
 }
 
 .term-card {
-  background: rgba(30, 41, 59, 0.3);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 1.75rem;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  transition: all 0.3s ease;
 }
 
 .term-card:hover {
-  transform: translateY(-6px) scale(1.02);
-  border-color: hsla(var(--h-primary), var(--s-primary), var(--l-primary), 0.4);
-  background: rgba(30, 41, 59, 0.5);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+  transform: translateY(-4px);
 }
 
 .term-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1rem;
+  margin-bottom: 12px;
 }
 
 .term-title {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  color: #fff;
+  color: #333;
   line-height: 1.4;
+  flex: 1;
+  margin-right: 12px;
 }
-
-.category-tag {
-  font-size: 0.75rem;
-  padding: 0.25rem 0.6rem;
-  border-radius: 6px;
-  font-weight: 600;
-}
-
-.category-tag.asset { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
-.category-tag.liability { background: rgba(239, 68, 68, 0.15); color: #f87171; }
-.category-tag.income { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
-.category-tag.expense { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
-.category-tag.concept { background: rgba(6, 182, 212, 0.15); color: #22d3ee; }
 
 .description {
-  color: #d1d5db;
+  color: #666;
   line-height: 1.6;
-  margin-bottom: 1rem;
+  margin-bottom: 12px;
 }
 
 .examples {
   margin-top: auto;
-  padding-top: 1rem;
-  border-top: 1px dashed var(--color-border);
+  padding-top: 12px;
+  border-top: 1px dashed #E8D5A3;
   font-size: 0.88rem;
 }
 
 .example-label {
-  color: var(--color-text-muted);
+  color: #909399;
   font-weight: 600;
 }
 
 .examples p {
-  color: var(--color-text-muted);
-  margin-top: 0.25rem;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 4rem;
-  color: var(--color-text-muted);
-}
-
-.empty-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
+  color: #909399;
+  margin-top: 4px;
 }
 
 @media (max-width: 768px) {
@@ -343,9 +273,7 @@ function getCategoryLabel(id) {
     flex-direction: column;
     align-items: flex-start;
   }
-  .search-box input {
-    width: 100%;
-  }
+  
   .terms-grid {
     grid-template-columns: 1fr;
   }

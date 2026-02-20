@@ -1,74 +1,90 @@
 <template>
-  <div class="celestial-container">
-    <div class="celestial-stars"></div>
+  <div class="golden-container">
+    <div class="golden-pattern"></div>
     <WealthParticles :count="60" />
     <div class="auth-page">
-      <div class="auth-container">
-        <div class="auth-card auth-glass-card">
-          <div class="auth-header">
-            <span class="auth-logo">⭐</span>
-            <h1>CashFlow</h1>
-            <p>星辰大海，财富领航</p>
-          </div>
-
-          <form @submit.prevent="handleLogin" class="auth-form">
-            <div class="form-group">
-              <label>邮箱</label>
-              <input
-                v-model.trim="form.account"
-                type="text"
-                placeholder="请输入邮箱"
-                required
-              />
-            </div>
-            <div class="form-group">
-              <label>密码</label>
-              <input
-                v-model="form.password"
-                type="password"
-                placeholder="请输入密码"
-                required
-              />
-            </div>
-
-            <div v-if="error" class="auth-error">{{ error }}</div>
-
-            <button
-              type="submit"
-              class="btn btn-primary btn-block"
-              :disabled="loading"
-            >
-              {{ loading ? "正在进入星系..." : "登 录" }}
-            </button>
-          </form>
-
-          <div class="auth-footer">
-            还没有账号？<router-link to="/register">立即注册</router-link>
-          </div>
+      <el-card class="auth-card auth-glass-card" shadow="hover">
+        <div class="auth-header">
+          <span class="auth-logo">💰</span>
+          <h1>CashFlow</h1>
+          <p>智慧理财，掌控未来</p>
         </div>
-      </div>
+
+        <el-form ref="formRef" :model="form" :rules="rules" @submit.prevent="handleLogin" class="auth-form">
+          <el-form-item prop="account">
+            <el-input
+              v-model.trim="form.account"
+              placeholder="请输入邮箱"
+              size="large"
+              prefix-icon="Message"
+            />
+          </el-form-item>
+          <el-form-item prop="password">
+            <el-input
+              v-model="form.password"
+              type="password"
+              placeholder="请输入密码"
+              size="large"
+              prefix-icon="Lock"
+              show-password
+            />
+          </el-form-item>
+
+          <el-alert
+            v-if="error"
+            :title="error"
+            type="error"
+            :closable="false"
+            show-icon
+            style="margin-bottom: 16px"
+          />
+
+          <el-button
+            type="primary"
+            size="large"
+            :loading="loading"
+            @click="handleLogin"
+            class="login-btn"
+          >
+            {{ loading ? "正在登录..." : "登 录" }}
+          </el-button>
+        </el-form>
+
+        <div class="auth-footer">
+          还没有账号？<router-link to="/register">立即注册</router-link>
+        </div>
+      </el-card>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 import WealthParticles from "../components/WealthParticles.vue";
 
 const router = useRouter();
 const authStore = useAuthStore();
+const formRef = ref(null);
 
-const form = ref({ account: "", password: "" });
+const form = reactive({ account: "", password: "" });
 const loading = ref(false);
 const error = ref("");
 
+const rules = {
+  account: [{ required: true, message: "请输入邮箱", trigger: "blur" }],
+  password: [{ required: true, message: "请输入密码", trigger: "blur" }],
+};
+
 async function handleLogin() {
+  const valid = await formRef.value.validate().catch(() => false);
+  if (!valid) return;
+  
   error.value = "";
   loading.value = true;
   try {
-    await authStore.login(form.value);
+    await authStore.login(form);
     router.push("/");
   } catch (e) {
     error.value = "登录失败，请检查账号密码";
@@ -84,76 +100,69 @@ async function handleLogin() {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: 24px;
   position: relative;
   z-index: 2;
   background: transparent;
 }
 
-.auth-container {
+.auth-card {
   width: 100%;
   max-width: 420px;
+  border-radius: 24px;
 }
 
-.auth-card {
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-xl);
-  padding: 3rem 2.5rem;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  position: relative;
-  z-index: 1;
+.auth-card :deep(.el-card__body) {
+  padding: 40px 32px;
 }
 
 .auth-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 32px;
 }
 
 .auth-logo {
   font-size: 3rem;
   display: block;
-  margin-bottom: 0.8rem;
+  margin-bottom: 12px;
 }
 
 .auth-header h1 {
-  font-size: 2.25rem;
+  font-size: 2rem;
   font-weight: 800;
-  background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+  background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin-bottom: 0.5rem;
+  margin-bottom: 8px;
   letter-spacing: -0.02em;
 }
 
 .auth-header p {
-  color: var(--color-text-muted);
-  font-size: 0.88rem;
+  color: #909399;
+  font-size: 0.9rem;
 }
 
 .auth-form {
-  margin-bottom: 1.5rem;
+  margin-bottom: 20px;
 }
 
-.auth-error {
-  background: var(--color-danger-bg);
-  color: var(--color-danger);
-  padding: 0.6rem 1rem;
-  border-radius: var(--radius-md);
-  font-size: 0.82rem;
-  margin-bottom: 1rem;
+.login-btn {
+  width: 100%;
+  height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 12px;
 }
 
 .auth-footer {
   text-align: center;
   font-size: 0.88rem;
-  color: var(--color-text-muted);
+  color: #909399;
 }
 
 .auth-footer a {
   font-weight: 600;
+  color: #D4AF37;
 }
 </style>
