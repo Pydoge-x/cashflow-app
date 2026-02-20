@@ -8,14 +8,15 @@
         <div class="sidebar-header">
           <div class="logo">
             <span class="logo-icon">💰</span>
-            <span v-show="!isCollapsed" class="logo-text">CashFlow</span>
+            <span v-show="!isCollapsed" class="logo-text">财富现金流</span>
           </div>
           <el-button
             class="collapse-btn"
-            :icon="isCollapsed ? 'Expand' : 'Fold'"
             text
             @click="isCollapsed = !isCollapsed"
-          />
+          >
+            <el-icon><component :is="isCollapsed ? Expand : Fold" /></el-icon>
+          </el-button>
         </div>
 
         <el-menu
@@ -66,20 +67,16 @@
               </el-menu-item>
             </el-sub-menu>
           </template>
+          <el-divider />
+          <el-menu-item index="/profile">
+            <el-icon><User /></el-icon>
+            <span>{{ authStore.user?.username || "个人中心" }}</span>
+          </el-menu-item>
+          <el-menu-item @click="handleLogout" class="logout-item">
+            <el-icon><SwitchButton /></el-icon>
+            <span>退出登录</span>
+          </el-menu-item>
         </el-menu>
-
-        <div class="sidebar-footer">
-          <el-menu class="sidebar-menu">
-            <el-menu-item index="/profile">
-              <el-icon><User /></el-icon>
-              <span>{{ authStore.user?.username || "个人中心" }}</span>
-            </el-menu-item>
-            <el-menu-item @click="handleLogout" class="logout-item">
-              <el-icon><SwitchButton /></el-icon>
-              <span>退出登录</span>
-            </el-menu-item>
-          </el-menu>
-        </div>
       </el-aside>
 
       <!-- 移动端抽屉菜单 -->
@@ -158,10 +155,11 @@
         <el-header class="top-bar">
           <el-button
             class="menu-btn"
-            :icon="'Menu'"
             text
             @click="mobileMenuOpen = true"
-          />
+          >
+            <el-icon><Menu /></el-icon>
+          </el-button>
           <div class="top-bar-right">
             <span class="greeting">{{ greeting }}</span>
           </div>
@@ -193,7 +191,10 @@ import {
   TrendCharts,
   PieChart,
   User,
-  SwitchButton
+  SwitchButton,
+  Expand,
+  Fold,
+  Menu
 } from '@element-plus/icons-vue';
 
 const router = useRouter();

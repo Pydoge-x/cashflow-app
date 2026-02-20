@@ -2,17 +2,20 @@
   <div class="glossary-view">
     <div class="page-header">
       <div class="header-content">
-        <h1>📖 金融名词解析</h1>
+        <h1>金融名词解析</h1>
         <p class="subtitle">理解财务术语，掌握您的财富逻辑</p>
       </div>
       <el-input
         v-model="searchQuery"
         placeholder="搜索关键词 (如：资产、利息)..."
-        prefix-icon="Search"
         clearable
         style="width: 320px"
         size="large"
-      />
+      >
+        <template #prefix>
+          <el-icon><Search /></el-icon>
+        </template>
+      </el-input>
     </div>
 
     <div class="category-tabs">
@@ -36,7 +39,7 @@
       >
         <div class="term-header">
           <span class="term-title">{{ term.title }}</span>
-          <el-tag :type="getCategoryType(term.categoryId)" effect="plain" size="small">
+          <el-tag :class="['category-tag', `category-tag-${term.categoryId}`]" size="small">
             {{ getCategoryLabel(term.categoryId) }}
           </el-tag>
         </div>
@@ -60,6 +63,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import { Search } from '@element-plus/icons-vue';
 
 const searchQuery = ref('');
 const activeCategory = ref('all');
@@ -173,16 +177,7 @@ function getCategoryLabel(id) {
   return categories.find(c => c.id === id)?.label || '';
 }
 
-function getCategoryType(id) {
-  const typeMap = {
-    asset: 'success',
-    liability: 'danger',
-    income: 'warning',
-    expense: '',
-    concept: 'info'
-  };
-  return typeMap[id] || '';
-}
+
 </script>
 
 <style scoped>
@@ -266,6 +261,45 @@ function getCategoryType(id) {
 .examples p {
   color: #909399;
   margin-top: 4px;
+}
+
+/* ===== 自定义标签样式 ===== */
+.category-tag {
+  border: none !important;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+}
+
+.category-tag-asset {
+  background: linear-gradient(135deg, rgba(82, 196, 26, 0.15) 0%, rgba(82, 196, 26, 0.08) 100%) !important;
+  color: #389e0d !important;
+  border: 1px solid rgba(82, 196, 26, 0.2) !important;
+}
+
+.category-tag-liability {
+  background: linear-gradient(135deg, rgba(255, 77, 79, 0.15) 0%, rgba(255, 77, 79, 0.08) 100%) !important;
+  color: #cf1322 !important;
+  border: 1px solid rgba(255, 77, 79, 0.2) !important;
+}
+
+.category-tag-income {
+  background: linear-gradient(135deg, rgba(129, 140, 248, 0.15) 0%, rgba(129, 140, 248, 0.08) 100%) !important;
+  color: #5b4ed4 !important;
+  border: 1px solid rgba(129, 140, 248, 0.2) !important;
+}
+
+.category-tag-expense {
+  background: linear-gradient(135deg, rgba(24, 144, 255, 0.15) 0%, rgba(24, 144, 255, 0.08) 100%) !important;
+  color: #096dd9 !important;
+  border: 1px solid rgba(24, 144, 255, 0.2) !important;
+}
+
+.category-tag-concept {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.18) 0%, rgba(212, 175, 55, 0.08) 100%) !important;
+  color: #b8860b !important;
+  border: 1px solid rgba(212, 175, 55, 0.3) !important;
 }
 
 @media (max-width: 768px) {

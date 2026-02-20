@@ -21,8 +21,11 @@
               v-model.trim="form.username"
               placeholder="请输入用户名"
               size="large"
-              prefix-icon="User"
-            />
+            >
+              <template #prefix>
+                <el-icon><User /></el-icon>
+              </template>
+            </el-input>
           </el-form-item>
 
           <el-form-item v-if="registrationMethod === 'EMAIL'" prop="email">
@@ -31,8 +34,11 @@
               type="email"
               placeholder="请输入常用邮箱"
               size="large"
-              prefix-icon="Message"
-            />
+            >
+              <template #prefix>
+                <el-icon><Message /></el-icon>
+              </template>
+            </el-input>
           </el-form-item>
 
           <el-form-item v-else prop="phone">
@@ -41,8 +47,11 @@
               type="tel"
               placeholder="请输入手机号"
               size="large"
-              prefix-icon="Phone"
-            />
+            >
+              <template #prefix>
+                <el-icon><Phone /></el-icon>
+              </template>
+            </el-input>
           </el-form-item>
 
           <el-form-item prop="code">
@@ -73,9 +82,12 @@
               type="password"
               placeholder="请输入密码 (至少6位)"
               size="large"
-              prefix-icon="Lock"
               show-password
-            />
+            >
+              <template #prefix>
+                <el-icon><Lock /></el-icon>
+              </template>
+            </el-input>
           </el-form-item>
 
           <el-form-item prop="confirmPassword">
@@ -84,9 +96,12 @@
               type="password"
               placeholder="请再次输入密码"
               size="large"
-              prefix-icon="Lock"
               show-password
-            />
+            >
+              <template #prefix>
+                <el-icon><Lock /></el-icon>
+              </template>
+            </el-input>
           </el-form-item>
 
           <el-alert
@@ -131,6 +146,7 @@ import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 import { authApi } from "../api/auth";
 import WealthParticles from "../components/WealthParticles.vue";
+import { User, Message, Phone, Lock } from '@element-plus/icons-vue';
 
 const router = useRouter();
 const authStore = useAuthStore();

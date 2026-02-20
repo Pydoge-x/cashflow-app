@@ -1,9 +1,11 @@
 <template>
   <div class="cashflow">
     <div class="page-header">
-      <h1>📈 月度现金流表</h1>
+      <h1>月度现金流表</h1>
       <el-button @click="refresh">
-        <el-icon><Refresh /></el-icon>
+        <template #icon>
+          <Refresh />
+        </template>
         刷新计算
       </el-button>
     </div>

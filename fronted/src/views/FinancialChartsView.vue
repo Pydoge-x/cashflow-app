@@ -1,7 +1,7 @@
 <template>
   <div class="financial-charts">
     <div class="page-header">
-      <h1>📊 财务分析图表</h1>
+      <h1>财务分析图表</h1>
       <el-tag v-if="financeStore.currentReport" effect="plain" type="warning">
         {{ financeStore.currentReport.name }}
       </el-tag>

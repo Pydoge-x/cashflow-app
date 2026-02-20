@@ -16,8 +16,11 @@
               v-model.trim="form.account"
               placeholder="请输入邮箱"
               size="large"
-              prefix-icon="Message"
-            />
+            >
+              <template #prefix>
+                <el-icon><Message /></el-icon>
+              </template>
+            </el-input>
           </el-form-item>
           <el-form-item prop="password">
             <el-input
@@ -25,9 +28,12 @@
               type="password"
               placeholder="请输入密码"
               size="large"
-              prefix-icon="Lock"
               show-password
-            />
+            >
+              <template #prefix>
+                <el-icon><Lock /></el-icon>
+              </template>
+            </el-input>
           </el-form-item>
 
           <el-alert
@@ -63,6 +69,7 @@ import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 import WealthParticles from "../components/WealthParticles.vue";
+import { Message, Lock } from '@element-plus/icons-vue';
 
 const router = useRouter();
 const authStore = useAuthStore();

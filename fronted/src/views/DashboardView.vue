@@ -1,13 +1,15 @@
 <template>
   <div class="dashboard">
     <div class="page-header">
-      <h1>📊 财务仪表盘</h1>
+      <h1>财务仪表盘</h1>
       <el-button
         type="primary"
         @click="showCreateModal = true"
         v-if="canCreate"
       >
-        <el-icon><Plus /></el-icon>
+        <template #icon>
+          <Plus />
+        </template>
         创建报表
       </el-button>
     </div>
@@ -56,7 +58,7 @@
               @confirm="handleDelete(report.id)"
             >
               <template #reference>
-                <el-button type="danger" size="small" text color="white">删除</el-button>
+                <el-button type="danger" size="small"  color="#fffff" text>删除</el-button>
               </template>
             </el-popconfirm>
           </div>

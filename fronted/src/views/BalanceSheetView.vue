@@ -1,9 +1,11 @@
 <template>
   <div class="balance-sheet">
     <div class="page-header">
-      <h1>📋 资产负债表</h1>
+      <h1>资产负债表</h1>
       <el-button type="primary" @click="openAddModal">
-        <el-icon><Plus /></el-icon>
+        <template #icon>
+          <Plus />
+        </template>
         添加条目
       </el-button>
     </div>
@@ -66,7 +68,7 @@
             </el-table-column>
             <el-table-column label="操作" width="140" align="right">
               <template #default="{ row }">
-                <el-button type="primary" size="small" text color="white" @click="openEditModal(row)">编辑</el-button>
+                <el-button type="primary" size="small" color="#fffff" text @click="openEditModal(row)">编辑</el-button>
                 <el-popconfirm
                   title="确定删除此条目？"
                   confirm-button-text="确定"
@@ -74,7 +76,7 @@
                   @confirm="handleDelete(row.id)"
                 >
                   <template #reference>
-                    <el-button type="danger" size="small" text color="white">删除</el-button>
+                    <el-button type="danger" size="small" color="#fffff" text>删除</el-button>
                   </template>
                 </el-popconfirm>
               </template>
@@ -120,7 +122,7 @@
             </el-table-column>
             <el-table-column label="操作" width="140" align="right">
               <template #default="{ row }">
-                <el-button type="primary" size="small" text color="white" @click="openEditModal(row)">编辑</el-button>
+                <el-button type="primary" size="small" color="#fffff" text @click="openEditModal(row)">编辑</el-button>
                 <el-popconfirm
                   title="确定删除此条目？"
                   confirm-button-text="确定"
@@ -128,7 +130,7 @@
                   @confirm="handleDelete(row.id)"
                 >
                   <template #reference>
-                    <el-button type="danger" size="small" text color="white">删除</el-button>
+                    <el-button type="danger" size="small" color="#fffff"text>删除</el-button>
                   </template>
                 </el-popconfirm>
               </template>

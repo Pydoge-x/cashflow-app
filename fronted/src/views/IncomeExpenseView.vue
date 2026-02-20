@@ -1,9 +1,11 @@
 <template>
   <div class="income-expense">
     <div class="page-header">
-      <h1>💵 收入支出表</h1>
+      <h1>收入支出表</h1>
       <el-button type="primary" @click="openAddModal">
-        <el-icon><Plus /></el-icon>
+        <template #icon>
+          <Plus />
+        </template>
         添加条目
       </el-button>
     </div>
@@ -66,7 +68,7 @@
             </el-table-column>
             <el-table-column label="操作" width="140" align="right">
               <template #default="{ row }">
-                <el-button type="primary" size="small" text color="white" @click="openEditModal(row)">编辑</el-button>
+                <el-button type="primary" size="small" color="#fffff" text @click="openEditModal(row)">编辑</el-button>
                 <el-popconfirm
                   title="确定删除此条目？"
                   confirm-button-text="确定"
@@ -74,7 +76,7 @@
                   @confirm="handleDelete(row.id)"
                 >
                   <template #reference>
-                    <el-button type="danger" size="small"  color="white" text>删除</el-button>
+                    <el-button type="danger" size="small" color="#fffff" text>删除</el-button>
                   </template>
                 </el-popconfirm>
               </template>
@@ -124,7 +126,6 @@
                   type="primary" 
                   size="small" 
                   text 
-                  color="white"
                   @click="openEditModal(row)"
                   :disabled="row.isSync"
                 >
@@ -138,7 +139,7 @@
                   @confirm="handleDelete(row.id)"
                 >
                   <template #reference>
-                    <el-button type="danger" size="small" text color="white">删除</el-button>
+                    <el-button type="danger" size="small" color="#fffff" text>删除</el-button>
                   </template>
                 </el-popconfirm>
                 <el-tooltip v-else content="来自资产负债表的同步项，无法直接删除" placement="top">

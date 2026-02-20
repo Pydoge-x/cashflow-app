@@ -137,6 +137,42 @@ a:hover {
   color: var(--color-primary-hover);
 }
 
+/* ===== Element Plus 图标样式覆盖 ===== */
+.el-icon {
+  color: #333333 !important;
+}
+
+.el-button .el-icon {
+  color: inherit !important;
+}
+
+.el-input__prefix .el-icon,
+.el-input__suffix .el-icon {
+  color: #909399 !important;
+}
+
+.el-menu-item .el-icon,
+.el-sub-menu__title .el-icon {
+  color: #333333 !important;
+}
+
+.el-menu-item:hover .el-icon,
+.el-menu-item.is-active .el-icon {
+  color: #D4AF37 !important;
+}
+
+.el-empty__image {
+  color: #909399 !important;
+}
+
+.el-alert__icon {
+  color: inherit !important;
+}
+
+.el-tag .el-icon {
+  color: inherit !important;
+}
+
 /* ===== Element Plus 组件样式覆盖 ===== */
 
 /* 按钮 */
