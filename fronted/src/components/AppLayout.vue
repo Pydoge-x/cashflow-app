@@ -210,8 +210,12 @@ const activeMenu = computed(() => route.path);
 const greeting = computed(() => {
   const hour = new Date().getHours();
   const name = authStore.user?.username || "";
-  if (hour < 12) return `早上好${name ? "，" + name : ""} 🌅`;
-  if (hour < 18) return `下午好${name ? "，" + name : ""} ☀️`;
+  if (!name) return `你好${name ? "，" + name : ""} 🌍`;
+  if (hour >= 0 && hour < 6) return `${name ? "" + name : ""}凌晨啦，记得早点休息，身体才是金钱的来源！ 🌙`;
+  if (hour >= 6 && hour < 12) return `${name ? "" + name : ""}早上好，新的一天，从一杯咖啡开始，愿你金钱多多！ 🌅`;
+  if (hour >= 12 && hour < 14) return `${name ? "" + name : ""}中午好，午后的阳光和你，都像金币一样闪耀！ ☀️`;
+  if (hour >= 14 && hour < 18) return `${name ? "" + name : ""}下午好，继续努力，愿你金钱多多！ 🌅`;
+  if (hour >= 18 && hour < 24) return `${name ? "" + name : ""}晚上好，休息时间到了，愿你有更多的时间来思考和规划！ 🌕`;
   return `晚上好${name ? "，" + name : ""} 🌙`;
 });
 
