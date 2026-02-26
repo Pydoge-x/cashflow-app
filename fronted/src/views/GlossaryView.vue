@@ -5,52 +5,57 @@
         <h1>金融名词解析</h1>
         <p class="subtitle">理解财务术语，掌握您的财富逻辑</p>
       </div>
-      <el-input
-        v-model="searchQuery"
-        placeholder="搜索关键词 (如：资产、利息)..."
-        clearable
-        style="width: 320px"
-        size="large"
-      >
-        <template #prefix>
-          <el-icon><Search /></el-icon>
-        </template>
-      </el-input>
+      <div class="search-wrap glass-card">
+        <el-input
+          v-model="searchQuery"
+          placeholder="搜索金融关键词 (如：资产、利息)..."
+          clearable
+          size="large"
+          class="glossary-search"
+        >
+          <template #prefix>
+            <Search :size="18" style="color: #D4AF37" />
+          </template>
+        </el-input>
+      </div>
     </div>
 
     <div class="category-tabs">
-      <el-button
+      <button
         v-for="cat in categories"
         :key="cat.id"
-        :type="activeCategory === cat.id ? 'primary' : 'default'"
-        round
+        class="cat-btn"
+        :class="{ active: activeCategory === cat.id }"
         @click="activeCategory = cat.id"
       >
-        {{ cat.icon }} {{ cat.label }}
-      </el-button>
+        <component :is="cat.icon" :size="16" />
+        <span>{{ cat.label }}</span>
+      </button>
     </div>
 
     <div class="terms-grid">
-      <el-card
+      <div
         v-for="term in filteredTerms"
         :key="term.title"
-        class="term-card"
-        shadow="hover"
+        class="term-card glass-card spotlight-card"
       >
         <div class="term-header">
-          <span class="term-title">{{ term.title }}</span>
-          <el-tag :class="['category-tag', `category-tag-${term.categoryId}`]" size="small">
+          <span class="term-title gold-text">{{ term.title }}</span>
+          <div :class="['category-tag-new', `tag-${term.categoryId}`]">
             {{ getCategoryLabel(term.categoryId) }}
-          </el-tag>
+          </div>
         </div>
         <div class="term-content">
           <p class="description">{{ term.description }}</p>
           <div v-if="term.examples" class="examples">
-            <span class="example-label">示例：</span>
+            <div class="example-header">
+              <Sparkles :size="14" />
+              <span>典型示例</span>
+            </div>
             <p>{{ term.examples }}</p>
           </div>
         </div>
-      </el-card>
+      </div>
     </div>
 
     <el-empty
@@ -63,18 +68,18 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { Search } from '@element-plus/icons-vue';
+import { Search, Coins, CreditCard, TrendingUp, TrendingDown, Brain, Sparkles, Layers } from 'lucide-vue-next';
 
 const searchQuery = ref('');
 const activeCategory = ref('all');
 
 const categories = [
-  { id: 'all', label: '全部', icon: '✨' },
-  { id: 'asset', label: '资产', icon: '💰' },
-  { id: 'liability', label: '负债', icon: '💳' },
-  { id: 'income', label: '收入', icon: '📈' },
-  { id: 'expense', label: '支出', icon: '📉' },
-  { id: 'concept', label: '财务概念', icon: '🧠' }
+  { id: 'all', label: '全部', icon: Layers },
+  { id: 'asset', label: '资产', icon: Coins },
+  { id: 'liability', label: '负债', icon: CreditCard },
+  { id: 'income', label: '收入', icon: TrendingUp },
+  { id: 'expense', label: '支出', icon: TrendingDown },
+  { id: 'concept', label: '财务概念', icon: Brain }
 ];
 
 const terms = [
@@ -187,9 +192,29 @@ function getCategoryLabel(id) {
   min-height: 100vh;
 }
 
+.page-header {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.search-wrap {
+  width: 100%;
+  max-width: 500px;
+  padding: 4px;
+  border-radius: 14px;
+}
+
+.glossary-search :deep(.el-input__wrapper) {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
 .header-content h1 {
-  font-size: 1.75rem;
-  margin-bottom: 4px;
+  font-size: 2.2rem;
+  margin-bottom: 8px;
   font-weight: 800;
   background: linear-gradient(135deg, #333 0%, #D4AF37 100%);
   -webkit-background-clip: text;
@@ -198,25 +223,57 @@ function getCategoryLabel(id) {
 }
 
 .subtitle {
-  color: #909399;
-  font-size: 1rem;
+  color: #666;
+  font-size: 1.1rem;
 }
 
 .category-tabs {
   display: flex;
   gap: 12px;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
   flex-wrap: wrap;
+}
+
+.cat-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  background: white;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.cat-btn:hover {
+  border-color: #D4AF37;
+  color: #D4AF37;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.1);
+}
+
+.cat-btn.active {
+  background: #D4AF37;
+  color: white;
+  border-color: #D4AF37;
+  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.25);
 }
 
 .terms-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 24px;
 }
 
 .term-card {
-  border-radius: 16px;
+  padding: 28px;
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
   transition: all 0.3s ease;
 }
 
@@ -227,79 +284,63 @@ function getCategoryLabel(id) {
 .term-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 12px;
+  align-items: center;
+  margin-bottom: 16px;
 }
 
 .term-title {
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-size: 1.2rem;
+  font-weight: 800;
   color: #333;
   line-height: 1.4;
   flex: 1;
   margin-right: 12px;
 }
 
+.category-tag-new {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tag-asset { background: rgba(82, 196, 26, 0.1); color: #52c41a; }
+.tag-liability { background: rgba(255, 77, 79, 0.1); color: #ff4d4f; }
+.tag-income { background: rgba(82, 196, 26, 0.1); color: #52c41a; }
+.tag-expense { background: rgba(255, 77, 79, 0.1); color: #ff4d4f; }
+.tag-concept { background: rgba(212, 175, 55, 0.1); color: #D4AF37; }
+
 .description {
   color: #666;
   line-height: 1.6;
-  margin-bottom: 12px;
+  font-size: 0.95rem;
+  margin-bottom: 20px;
 }
 
 .examples {
   margin-top: auto;
-  padding-top: 12px;
-  border-top: 1px dashed #E8D5A3;
-  font-size: 0.88rem;
+  padding: 16px;
+  background: rgba(212, 175, 55, 0.05);
+  border-radius: 14px;
 }
 
-.example-label {
-  color: #909399;
-  font-weight: 600;
+.example-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  color: #D4AF37;
+  font-weight: 700;
+  font-size: 0.8rem;
 }
 
 .examples p {
-  color: #909399;
-  margin-top: 4px;
-}
-
-/* ===== 自定义标签样式 ===== */
-.category-tag {
-  border: none !important;
-  font-weight: 600;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.78rem;
-}
-
-.category-tag-asset {
-  background: linear-gradient(135deg, rgba(82, 196, 26, 0.15) 0%, rgba(82, 196, 26, 0.08) 100%) !important;
-  color: #389e0d !important;
-  border: 1px solid rgba(82, 196, 26, 0.2) !important;
-}
-
-.category-tag-liability {
-  background: linear-gradient(135deg, rgba(255, 77, 79, 0.15) 0%, rgba(255, 77, 79, 0.08) 100%) !important;
-  color: #cf1322 !important;
-  border: 1px solid rgba(255, 77, 79, 0.2) !important;
-}
-
-.category-tag-income {
-  background: linear-gradient(135deg, rgba(129, 140, 248, 0.15) 0%, rgba(129, 140, 248, 0.08) 100%) !important;
-  color: #5b4ed4 !important;
-  border: 1px solid rgba(129, 140, 248, 0.2) !important;
-}
-
-.category-tag-expense {
-  background: linear-gradient(135deg, rgba(24, 144, 255, 0.15) 0%, rgba(24, 144, 255, 0.08) 100%) !important;
-  color: #096dd9 !important;
-  border: 1px solid rgba(24, 144, 255, 0.2) !important;
-}
-
-.category-tag-concept {
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.18) 0%, rgba(212, 175, 55, 0.08) 100%) !important;
-  color: #b8860b !important;
-  border: 1px solid rgba(212, 175, 55, 0.3) !important;
+  color: #888;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin: 0;
 }
 
 @media (max-width: 768px) {

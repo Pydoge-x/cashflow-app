@@ -1,34 +1,39 @@
 <template>
   <div class="profile">
     <div class="page-header">
-      <h1>👤 个人信息</h1>
+      <h1>个人信息中心</h1>
     </div>
 
     <div class="profile-container">
       <!-- 头像和基本信息卡片 -->
-      <el-card class="avatar-card" shadow="hover">
+      <div class="avatar-card glass-card spotlight-card">
         <div class="avatar-section">
           <div class="avatar-wrapper">
-            <div class="avatar-placeholder">
+            <div class="avatar-inner">
               <span class="avatar-text">{{ avatarText }}</span>
             </div>
             <div class="avatar-glow"></div>
           </div>
           <div class="user-info">
-            <h2 class="user-name">{{ form.username || "未设置用户名" }}</h2>
-            <p class="user-bio">管理您的个人信息，让理财更个性化</p>
+            <h2 class="user-name gold-text">{{ form.username || "未设置用户名" }}</h2>
+            <p class="user-bio">管理您的个人资料，定制专属的财富管家</p>
+            <!-- <div class="user-badges">
+              <span class="badge shimmer-btn"><ShieldCheck :size="12" /> 高级会员</span>
+              <span class="badge-outline"><CircleUser :size="12" /> 账户已实名</span>
+            </div> -->
           </div>
         </div>
-      </el-card>
+      </div>
 
       <!-- 表单卡片 -->
-      <el-card class="profile-card" shadow="hover">
-        <template #header>
-          <div class="card-header-section">
+      <div class="profile-card glass-card spotlight-card">
+        <div class="card-header-section">
+          <div class="header-title-group">
+            <div class="icon-wrap"><Settings :size="18" /></div>
             <span class="header-title">编辑资料</span>
-            <el-tag type="warning" effect="plain" size="small">个人信息</el-tag>
           </div>
-        </template>
+          <el-tag type="warning" effect="plain" size="small" class="header-badge">账号设置</el-tag>
+        </div>
         
         <el-form
           ref="formRef"
@@ -102,7 +107,7 @@
             </el-button>
           </div>
         </el-form>
-      </el-card>
+      </div>
     </div>
   </div>
 </template>
@@ -110,7 +115,7 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from "vue";
 import { useAuthStore } from "../stores/auth";
-import { Check } from '@element-plus/icons-vue';
+import { Check, User, Mail, Phone, ShieldCheck, CircleUser, Settings } from 'lucide-vue-next';
 
 const authStore = useAuthStore();
 const formRef = ref(null);
@@ -177,47 +182,45 @@ async function handleSave() {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  max-width: 700px;
+  max-width: 800px;
 }
 
 /* ===== 头像卡片 ===== */
 .avatar-card {
-  border-radius: 20px;
-  overflow: visible;
-}
-
-.avatar-card :deep(.el-card__body) {
-  padding: 32px;
+  border-radius: 24px;
+  padding: 40px;
 }
 
 .avatar-section {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 32px;
 }
 
 .avatar-wrapper {
   position: relative;
+  width: 120px;
+  height: 120px;
 }
 
-.avatar-placeholder {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #D4AF37 0%, #C9A227 100%);
+.avatar-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 32px;
+  background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 24px rgba(212, 175, 55, 0.3);
+  box-shadow: 0 12px 32px rgba(212, 175, 55, 0.25);
   position: relative;
   z-index: 2;
+  border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .avatar-text {
-  font-size: 2.5rem;
-  font-weight: 700;
+  font-size: 3rem;
+  font-weight: 800;
   color: #fff;
-  text-transform: uppercase;
 }
 
 .avatar-glow {
@@ -225,23 +228,16 @@ async function handleSave() {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 120px;
-  height: 120px;
+  width: 150px;
+  height: 150px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(212, 175, 55, 0.3) 0%, transparent 70%);
-  animation: pulse 2s ease-in-out infinite;
-  z-index: 1;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.2) 0%, transparent 70%);
+  animation: pulse 3s ease-in-out infinite;
 }
 
 @keyframes pulse {
-  0%, 100% {
-    opacity: 0.6;
-    transform: translate(-50%, -50%) scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1.1);
-  }
+  0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.1); }
 }
 
 .user-info {
@@ -249,91 +245,117 @@ async function handleSave() {
 }
 
 .user-name {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #333;
-  margin-bottom: 4px;
-  background: linear-gradient(135deg, #333 0%, #D4AF37 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
 }
 
 .user-bio {
-  color: #909399;
-  font-size: 0.95rem;
-  margin: 0;
+  color: #666;
+  font-size: 1rem;
+  margin-bottom: 20px;
+}
+
+.user-badges {
+  display: flex;
+  gap: 12px;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: #D4AF37;
+  color: white;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.badge-outline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: #D4AF37;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 
 /* ===== 表单卡片 ===== */
 .profile-card {
-  border-radius: 20px;
-}
-
-.profile-card :deep(.el-card__header) {
-  padding: 20px 24px;
-  border-bottom: 1px solid #F0E8D0;
-}
-
-.profile-card :deep(.el-card__body) {
-  padding: 28px 24px 24px;
+  border-radius: 24px;
+  padding: 0;
+  overflow: hidden;
 }
 
 .card-header-section {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 24px 32px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.12);
+}
+
+.header-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(212, 175, 55, 0.1);
+  color: #D4AF37;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .header-title {
-  font-weight: 600;
-  font-size: 1.1rem;
+  font-weight: 700;
+  font-size: 1.15rem;
   color: #333;
 }
 
 .profile-form {
-  margin-top: 8px;
+  padding: 32px;
 }
 
 .form-actions {
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid #F0E8D0;
+  margin-top: 32px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(212, 175, 55, 0.12);
 }
 
 .save-btn {
   width: 100%;
-  height: 48px;
-  font-size: 1rem;
-  font-weight: 600;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #D4AF37 0%, #C9A227 100%);
-  border: none;
-}
-
-.save-btn:hover {
-  background: linear-gradient(135deg, #E8C04A 0%, #D4AF37 100%);
-}
-
-.message-alert {
-  margin-bottom: 0;
-  border-radius: 12px;
+  height: 54px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border-radius: 16px;
 }
 
 /* ===== 响应式适配 ===== */
 @media (max-width: 768px) {
   .avatar-section {
     flex-direction: column;
+    gap: 24px;
     text-align: center;
   }
   
-  .avatar-card :deep(.el-card__body),
-  .profile-card :deep(.el-card__body) {
-    padding: 24px 20px;
+  .user-badges {
+    justify-content: center;
   }
-  
-  .user-name {
-    font-size: 1.25rem;
+
+  .profile-form {
+    padding: 24px 20px;
   }
 }
 </style>

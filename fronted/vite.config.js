@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import legacy from '@vitejs/plugin-legacy'
+import tailwindcss from '@tailwindcss/vite'
 import { loadEnv } from 'vite'
 
 const env = loadEnv('development', process.cwd())
@@ -8,7 +9,7 @@ const env = loadEnv('development', process.cwd())
 // https://vite.dev/config/
 export default defineConfig({
   base: './',
-  plugins: [vue(), legacy({
+  plugins: [tailwindcss(), vue(), legacy({
     targets: ['defaults', 'Android >= 4.4'],
     additionalLegacyPolyfills: ['regenerator-runtime/runtime']
   })],

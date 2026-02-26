@@ -2,53 +2,66 @@
   <div class="financial-charts">
     <div class="page-header">
       <h1>财务分析图表</h1>
-      <el-tag v-if="financeStore.currentReport" effect="plain" type="warning">
-        {{ financeStore.currentReport.name }}
-      </el-tag>
+      <div v-if="financeStore.currentReport" class="shimmer-btn report-name-badge">
+        <Sparkles :size="14" />
+        <span>{{ financeStore.currentReport.name }}</span>
+      </div>
     </div>
 
     <div v-if="financeStore.loading" class="loading-spinner"></div>
 
     <div v-else class="charts-grid">
       <!-- 收入构成 -->
-      <el-card class="chart-card" shadow="hover">
-        <template #header>
-          <span class="card-title">📥 收入构成分析</span>
-        </template>
+      <div class="chart-card glass-card spotlight-card">
+        <div class="card-header">
+          <div class="header-title">
+            <div class="icon-wrap income"><TrendingUp :size="18" /></div>
+            <span>收入构成分析</span>
+          </div>
+        </div>
         <div class="chart-container">
           <v-chart class="chart" :option="incomeOption" autoresize />
         </div>
-      </el-card>
+      </div>
 
       <!-- 支出构成 -->
-      <el-card class="chart-card" shadow="hover">
-        <template #header>
-          <span class="card-title">📤 支出构成分析</span>
-        </template>
+      <div class="chart-card glass-card spotlight-card">
+        <div class="card-header">
+          <div class="header-title">
+            <div class="icon-wrap expense"><TrendingDown :size="18" /></div>
+            <span>支出构成分析</span>
+          </div>
+        </div>
         <div class="chart-container">
           <v-chart class="chart" :option="expenseOption" autoresize />
         </div>
-      </el-card>
+      </div>
 
       <!-- 资产构成 -->
-      <el-card class="chart-card" shadow="hover">
-        <template #header>
-          <span class="card-title">💰 资产构成分析</span>
-        </template>
+      <div class="chart-card glass-card spotlight-card">
+        <div class="card-header">
+          <div class="header-title">
+            <div class="icon-wrap asset"><CircleDollarSign :size="18" /></div>
+            <span>资产构成分析</span>
+          </div>
+        </div>
         <div class="chart-container">
           <v-chart class="chart" :option="assetOption" autoresize />
         </div>
-      </el-card>
+      </div>
 
       <!-- 负债构成 -->
-      <el-card class="chart-card" shadow="hover">
-        <template #header>
-          <span class="card-title">💳 负债构成分析</span>
-        </template>
+      <div class="chart-card glass-card spotlight-card">
+        <div class="card-header">
+          <div class="header-title">
+            <div class="icon-wrap debt"><CreditCard :size="18" /></div>
+            <span>负债构成分析</span>
+          </div>
+        </div>
         <div class="chart-container">
           <v-chart class="chart" :option="debtOption" autoresize />
         </div>
-      </el-card>
+      </div>
     </div>
   </div>
 </template>
@@ -57,6 +70,7 @@
 import { computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useFinanceStore } from "../stores/finance";
+import { Sparkles, TrendingUp, TrendingDown, CircleDollarSign, CreditCard } from 'lucide-vue-next';
 import { use } from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
 import { PieChart } from "echarts/charts";
@@ -78,8 +92,7 @@ use([
 const route = useRoute();
 const financeStore = useFinanceStore();
 const reportId = computed(() => route.params.reportId);
-
-const colors = ["#D4AF37", "#52c41a", "#ff4d4f", "#faad14", "#818cf8", "#06b6d4"];
+const colors = ["#D4AF37", "#52C41A", "#FF4D4F", "#FAAD14", "#722ED1", "#13C2C2"];
 
 function getMergedItems(type, category) {
   const originalItems = financeStore.incomeExpense.filter(
@@ -259,33 +272,64 @@ onMounted(() => {
 <style scoped>
 .charts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 24px;
   margin-top: 16px;
 }
 
 .chart-card {
-  height: 400px;
+  height: 480px;
   display: flex;
   flex-direction: column;
-  border-radius: 16px;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 24px;
 }
 
-.chart-card :deep(.el-card__body) {
-  flex: 1;
+.card-header {
   display: flex;
-  flex-direction: column;
-  padding: 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.12);
 }
 
-.card-title {
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-wrap.income { background: rgba(82, 196, 26, 0.1); color: #52c41a; }
+.icon-wrap.expense { background: rgba(255, 77, 79, 0.1); color: #ff4d4f; }
+.icon-wrap.asset { background: rgba(82, 196, 26, 0.1); color: #52c41a; }
+.icon-wrap.debt { background: rgba(255, 77, 79, 0.1); color: #ff4d4f; }
+
+.report-name-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  border-radius: 999px;
   font-weight: 600;
-  font-size: 1rem;
 }
 
 .chart-container {
   flex: 1;
   width: 100%;
+  padding: 20px;
   min-height: 0;
 }
 
@@ -294,12 +338,23 @@ onMounted(() => {
   height: 100%;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .charts-grid {
     grid-template-columns: 1fr;
   }
+}
+
+@media (max-width: 768px) {
   .chart-card {
-    height: 350px;
+    height: 380px;
+  }
+
+  .card-header {
+    padding: 16px;
+  }
+
+  .header-title {
+    font-size: 1rem;
   }
 }
 </style>

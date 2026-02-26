@@ -2,12 +2,10 @@
   <div class="cashflow">
     <div class="page-header">
       <h1>月度现金流表</h1>
-      <el-button @click="refresh">
-        <template #icon>
-          <Refresh />
-        </template>
+      <button @click="refresh" class="create-btn shimmer-btn" style="background: white; color: #D4AF37; border: 1px solid #D4AF37;">
+        <RefreshCw :size="16" />
         刷新计算
-      </el-button>
+      </button>
     </div>
 
     <div v-if="financeStore.loading" class="loading-spinner"></div>
@@ -15,19 +13,21 @@
     <template v-else-if="cashFlow">
       <!-- 核心指标 -->
       <div class="summary-grid">
-        <el-card class="summary-card" shadow="hover" style="--accent: #52c41a">
+        <div class="summary-card glass-card spotlight-card" style="--accent: #52c41a">
           <div class="label">月总收入</div>
           <div class="value" style="color: #52c41a">
             ¥{{ formatNum(cashFlow.totalIncome) }}
           </div>
-        </el-card>
-        <el-card class="summary-card" shadow="hover" style="--accent: #ff4d4f">
+          <div class="card-icon-bg"><TrendingUp :size="48" /></div>
+        </div>
+        <div class="summary-card glass-card spotlight-card" style="--accent: #ff4d4f">
           <div class="label">月总支出</div>
           <div class="value" style="color: #ff4d4f">
             ¥{{ formatNum(cashFlow.totalExpense) }}
           </div>
-        </el-card>
-        <el-card class="summary-card" shadow="hover" style="--accent: #D4AF37">
+          <div class="card-icon-bg"><TrendingDown :size="48" /></div>
+        </div>
+        <div class="summary-card glass-card spotlight-card" style="--accent: #D4AF37">
           <div class="label">月现金流</div>
           <div
             class="value"
@@ -35,7 +35,8 @@
           >
             ¥{{ formatNum(cashFlow.monthlyCashFlow) }}
           </div>
-        </el-card>
+          <div class="card-icon-bg"><Activity :size="48" /></div>
+        </div>
       </div>
 
       <!-- 现金流状态指示 -->
@@ -62,10 +63,13 @@
       </el-alert>
 
       <!-- 收入明细 -->
-      <el-card class="section-card" shadow="hover" style="margin-top: 24px">
-        <template #header>
-          <span class="card-title">📥 现金流入（收入）</span>
-        </template>
+      <div class="section-card glass-card spotlight-card" style="margin-top: 24px">
+        <div class="card-header">
+          <div class="header-title">
+            <div class="icon-wrap income"><TrendingUp :size="18" /></div>
+            <span>现金流入（明细）</span>
+          </div>
+        </div>
 
         <div class="section-divider">劳动收入（主动收入）</div>
         <el-table
@@ -100,13 +104,16 @@
           </el-table-column>
         </el-table>
         <el-empty v-else description="暂无资产收入" :image-size="60" />
-      </el-card>
+      </div>
 
       <!-- 支出明细 -->
-      <el-card class="section-card" shadow="hover" style="margin-top: 24px">
-        <template #header>
-          <span class="card-title">📤 现金流出（支出）</span>
-        </template>
+      <div class="section-card glass-card spotlight-card" style="margin-top: 24px">
+        <div class="card-header">
+          <div class="header-title">
+            <div class="icon-wrap expense"><TrendingDown :size="18" /></div>
+            <span>现金流出（明细）</span>
+          </div>
+        </div>
 
         <div class="section-divider">生活支出</div>
         <el-table
@@ -158,18 +165,20 @@
           </el-table-column>
         </el-table>
         <el-empty v-else description="暂无资产性支出" :image-size="60" />
-      </el-card>
+      </div>
 
       <!-- 不计入现金流的项目 -->
-      <el-card
+      <div
         v-if="cashFlow.excludedItems && cashFlow.excludedItems.length > 0"
-        class="section-card" 
-        shadow="hover" 
+        class="section-card glass-card spotlight-card" 
         style="margin-top: 24px"
       >
-        <template #header>
-          <span class="card-title">📌 不计入现金流的项目（资产转移）</span>
-        </template>
+        <div class="card-header">
+          <div class="header-title">
+            <div class="icon-wrap info"><Info :size="18" /></div>
+            <span>资产转移项</span>
+          </div>
+        </div>
         <el-table :data="cashFlow.excludedItems" stripe>
           <el-table-column prop="name" label="项目" />
           <el-table-column label="金额 (¥/月)" align="right">
@@ -183,13 +192,16 @@
             </template>
           </el-table-column>
         </el-table>
-      </el-card>
+      </div>
 
       <!-- 计算公式说明 -->
-      <el-card class="section-card formula-card" shadow="hover" style="margin-top: 24px">
-        <template #header>
-          <span class="card-title">📐 计算公式</span>
-        </template>
+      <div class="section-card glass-card formula-card spotlight-card" style="margin-top: 24px">
+        <div class="card-header">
+          <div class="header-title">
+            <div class="icon-wrap math"><Calculator :size="18" /></div>
+            <span>计算分析</span>
+          </div>
+        </div>
         <div class="formula">
           <div class="formula-line">
             <span class="formula-label">月现金流</span>
@@ -231,7 +243,7 @@
             注意：资产性支出中的本金部分（如房贷本金、股票购买、定期存款等）不计入月支出，因为这属于资产转移而非实际现金流出。
           </template>
         </el-alert>
-      </el-card>
+      </div>
     </template>
 
     <el-empty
@@ -251,7 +263,7 @@
 import { computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useFinanceStore } from "../stores/finance";
-import { Refresh } from '@element-plus/icons-vue';
+import { RefreshCw, TrendingUp, TrendingDown, Activity, Info, Calculator } from 'lucide-vue-next';
 
 const route = useRoute();
 const financeStore = useFinanceStore();
@@ -274,41 +286,81 @@ onMounted(() => refresh());
 
 <style scoped>
 .section-card {
-  border-radius: 16px;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 20px;
 }
 
-.card-title {
-  font-weight: 600;
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.12);
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
   font-size: 1.1rem;
+}
+
+.icon-wrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-wrap.income {
+  background: rgba(82, 196, 26, 0.1);
+  color: #52c41a;
+}
+
+.icon-wrap.expense {
+  background: rgba(255, 77, 79, 0.1);
+  color: #ff4d4f;
+}
+
+.icon-wrap.info {
+  background: rgba(144, 147, 153, 0.1);
+  color: #909399;
+}
+
+.icon-wrap.math {
+  background: rgba(212, 175, 55, 0.1);
+  color: #D4AF37;
 }
 
 .summary-card {
   position: relative;
   overflow: hidden;
+  padding: 24px;
+  border-radius: 20px;
 }
 
-.summary-card::before {
-  content: "";
+.card-icon-bg {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: var(--accent, #D4AF37);
+  right: -10px;
+  bottom: -10px;
+  opacity: 0.05;
+  transform: rotate(-15deg);
 }
 
 .summary-card .label {
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   color: #909399;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-weight: 600;
   margin-bottom: 8px;
 }
 
 .summary-card .value {
-  font-size: 1.6rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
+  font-size: 1.8rem;
+  font-weight: 800;
 }
 
 .cashflow-status {
@@ -327,7 +379,7 @@ onMounted(() => refresh());
 }
 
 .amount {
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .amount.positive {
@@ -339,37 +391,52 @@ onMounted(() => refresh());
 }
 
 .formula {
-  padding: 8px 0;
+  padding: 24px;
 }
 
 .formula-line {
   display: flex;
   align-items: baseline;
   gap: 8px;
-  padding: 6px 0;
-  font-size: 0.9rem;
+  padding: 8px 0;
+  font-size: 0.95rem;
 }
 
 .formula-line.sub {
   padding-left: 24px;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #666;
 }
 
 .formula-line.result {
-  padding-top: 12px;
-  border-top: 1px solid #F0E8D0;
-  margin-top: 8px;
-  font-size: 1rem;
+  padding-top: 16px;
+  border-top: 1px solid rgba(212, 175, 55, 0.12);
+  margin-top: 12px;
+  font-size: 1.1rem;
 }
 
 .formula-label {
-  font-weight: 600;
-  min-width: 80px;
+  font-weight: 700;
+  min-width: 90px;
   color: #333;
 }
 
 .formula-eq {
   color: #909399;
+}
+
+.create-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: all 0.2s;
+}
+
+:deep(.el-table) {
+  padding: 0 16px;
 }
 </style>

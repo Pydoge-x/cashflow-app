@@ -1,4 +1,167 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+@import "tailwindcss";
+@plugin "daisyui";
+
+/* ===== Magic UI: Shimmer Effect ===== */
+@keyframes shimmer {
+  from { background-position: 0 0; }
+  to   { background-position: -200% 0; }
+}
+@keyframes aurora {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(212,175,55,0.3); }
+  50%       { box-shadow: 0 0 40px rgba(212,175,55,0.6), 0 0 80px rgba(212,175,55,0.2); }
+}
+
+/* Shimmer button (Magic UI / Aceternity) */
+.shimmer-btn {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #D4AF37 0%, #C9A227 50%, #E8C04A 100%);
+  background-size: 200% auto;
+  animation: shimmer 3s linear infinite;
+  border: none;
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(212,175,55,0.4);
+}
+.shimmer-btn:hover {
+  box-shadow: 0 8px 32px rgba(212, 175, 55, 0.6);
+  transform: translateY(-2px);
+}
+
+.shimmer-btn:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
+}
+
+/* Glass card (Glass UI) */
+.glass-card {
+  background: rgba(255,255,255,0.75) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(212,175,55,0.25) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.8) !important;
+}
+.glass-card:hover {
+  border-color: rgba(212,175,55,0.5) !important;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.12), 0 0 30px rgba(212,175,55,0.15), inset 0 1px 0 rgba(255,255,255,0.9) !important;
+  transform: translateY(-2px);
+}
+
+.glass-card:active {
+  transform: scale(0.99);
+}
+
+/* Aurora glow (Aceternity UI) */
+.aurora-glow {
+  background: linear-gradient(270deg, #D4AF37, #fff8e1, #C9A227, #fef9e7);
+  background-size: 400% 400%;
+  animation: aurora 8s ease infinite;
+  filter: blur(40px);
+  opacity: 0.4;
+}
+
+/* Spotlight card (Aceternity UI) */
+.spotlight-card {
+  position: relative;
+  overflow: hidden;
+}
+.spotlight-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(212,175,55,0.12) 0%, transparent 60%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.spotlight-card:hover::before {
+  opacity: 1;
+}
+
+/* ===== Marquee (Magic UI) ===== */
+.marquee-container {
+  display: flex;
+  overflow: hidden;
+  user-select: none;
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+.marquee-content {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-around;
+  gap: 1rem;
+  min-width: 100%;
+  animation: scroll 30s linear infinite;
+}
+
+@keyframes scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(-100% - 1rem)); }
+}
+
+/* ===== Bento Grid (Aceternity UI) ===== */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.bento-item {
+  border-radius: 20px;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  transition: all 0.3s ease;
+}
+
+.bento-item:hover {
+  border-color: rgba(212, 175, 55, 0.5);
+  box-shadow: 0 10px 30px rgba(212, 175, 55, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Word rotate / text gradient (Magic UI) */
+.gradient-text {
+  background: linear-gradient(135deg, #333333 0%, #D4AF37 60%, #B8860B 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.gold-text {
+  background: linear-gradient(135deg, #FFD700 0%, #D4AF37 50%, #B8860B 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* DaisyUI theme overrides to match gold theme */
+[data-theme="light"] {
+  --p: 212 175 55;
+  --pc: 255 255 255;
+}
+
 
 /* ===== Element Plus 主题覆盖 - 白色/金色主题 ===== */
 :root {
@@ -286,6 +449,17 @@ a:hover {
   --el-table-text-color: #333333 !important;
   --el-table-row-hover-bg-color: #fef9e7 !important;
   --el-table-border-color: #F0E8D0 !important;
+}
+
+.el-table__inner-wrapper {
+  overflow-x: auto !important;
+}
+
+/* 移动端表格卡片化或滚动提示 */
+@media (max-width: 768px) {
+  .el-table {
+    font-size: 13px;
+  }
 }
 
 .el-table th.el-table__cell {
@@ -679,10 +853,24 @@ a:hover {
 @media (max-width: 768px) {
   .summary-grid {
     grid-template-columns: 1fr 1fr;
+    gap: 12px;
   }
   
+  .page-header {
+    margin-bottom: 20px;
+    gap: 12px;
+  }
+
   .page-header h1 {
-    font-size: 1.25rem;
+    font-size: 1.4rem;
+  }
+
+  .summary-card {
+    padding: 16px;
+  }
+
+  .summary-card .value {
+    font-size: 1.3rem;
   }
 }
 

@@ -2,29 +2,29 @@
   <div class="balance-sheet">
     <div class="page-header">
       <h1>资产负债表</h1>
-      <el-button type="primary" @click="openAddModal">
-        <template #icon>
-          <Plus />
-        </template>
+      <button @click="openAddModal" class="create-btn shimmer-btn">
+        <Plus :size="16" />
         添加条目
-      </el-button>
+      </button>
     </div>
 
     <!-- 汇总区域 -->
     <div class="summary-grid">
-      <el-card class="summary-card" shadow="hover" style="--accent: #52c41a">
+      <div class="summary-card glass-card spotlight-card" style="--accent: #52c41a">
         <div class="label">总资产</div>
         <div class="value" style="color: #52c41a">
           ¥{{ formatNum(totalAssets) }}
         </div>
-      </el-card>
-      <el-card class="summary-card" shadow="hover" style="--accent: #ff4d4f">
+        <div class="card-icon-bg"><CircleDollarSign :size="48" /></div>
+      </div>
+      <div class="summary-card glass-card spotlight-card" style="--accent: #ff4d4f">
         <div class="label">总负债</div>
         <div class="value" style="color: #ff4d4f">
           ¥{{ formatNum(totalDebts) }}
         </div>
-      </el-card>
-      <el-card class="summary-card" shadow="hover" style="--accent: #D4AF37">
+        <div class="card-icon-bg"><CreditCard :size="48" /></div>
+      </div>
+      <div class="summary-card glass-card spotlight-card" style="--accent: #D4AF37">
         <div class="label">净资产</div>
         <div
           class="value"
@@ -32,20 +32,22 @@
         >
           ¥{{ formatNum(netWorth) }}
         </div>
-      </el-card>
+        <div class="card-icon-bg"><PiggyBank :size="48" /></div>
+      </div>
     </div>
 
     <div v-if="financeStore.loading" class="loading-spinner"></div>
 
     <template v-else>
       <!-- 资产部分 -->
-      <el-card class="section-card" shadow="hover">
-        <template #header>
-          <div class="card-header">
-            <span>💰 资产</span>
-            <el-tag type="success" effect="plain">¥{{ formatNum(totalAssets) }}</el-tag>
+      <div class="section-card glass-card spotlight-card">
+        <div class="card-header">
+          <div class="header-title">
+            <div class="icon-wrap asset"><CircleDollarSign :size="18" /></div>
+            <span>流动资产表</span>
           </div>
-        </template>
+          <el-tag type="success" effect="plain" class="header-badge">¥{{ formatNum(totalAssets) }}</el-tag>
+        </div>
 
         <template v-for="(cat, catKey) in assetCategories" :key="catKey">
           <div class="section-divider">{{ cat.label }}</div>
@@ -84,16 +86,17 @@
           </el-table>
           <el-empty v-else description="暂无数据" :image-size="60" />
         </template>
-      </el-card>
+      </div>
 
       <!-- 负债部分 -->
-      <el-card class="section-card" shadow="hover" style="margin-top: 24px">
-        <template #header>
-          <div class="card-header">
-            <span>💳 负债</span>
-            <el-tag type="danger" effect="plain">¥{{ formatNum(totalDebts) }}</el-tag>
+      <div class="section-card glass-card spotlight-card" style="margin-top: 24px">
+        <div class="card-header">
+          <div class="header-title">
+            <div class="icon-wrap debt"><CreditCard :size="18" /></div>
+            <span>家庭负债表</span>
           </div>
-        </template>
+          <el-tag type="danger" effect="plain" class="header-badge">¥{{ formatNum(totalDebts) }}</el-tag>
+        </div>
 
         <template v-for="(cat, catKey) in debtCategories" :key="catKey">
           <div class="section-divider">{{ cat.label }}</div>
@@ -138,7 +141,7 @@
           </el-table>
           <el-empty v-else description="暂无数据" :image-size="60" />
         </template>
-      </el-card>
+      </div>
     </template>
 
     <!-- 添加/编辑弹窗 -->
@@ -215,7 +218,7 @@
 import { ref, reactive, computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useFinanceStore } from "../stores/finance";
-import { Plus } from '@element-plus/icons-vue';
+import { Plus, CircleDollarSign, CreditCard, PiggyBank } from 'lucide-vue-next';
 
 const route = useRoute();
 const financeStore = useFinanceStore();
@@ -350,48 +353,80 @@ onMounted(async () => {
 
 <style scoped>
 .section-card {
-  border-radius: 16px;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 20px;
 }
 
 .card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-weight: 600;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.12);
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
   font-size: 1.1rem;
+}
+
+.icon-wrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-wrap.asset {
+  background: rgba(82, 196, 26, 0.1);
+  color: #52c41a;
+}
+
+.icon-wrap.debt {
+  background: rgba(255, 77, 79, 0.1);
+  color: #ff4d4f;
+}
+
+.header-badge {
+  border-radius: 8px;
+  font-weight: 700;
 }
 
 .summary-card {
   position: relative;
   overflow: hidden;
+  padding: 24px;
+  border-radius: 20px;
 }
 
-.summary-card::before {
-  content: "";
+.card-icon-bg {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: var(--accent, #D4AF37);
+  right: -10px;
+  bottom: -10px;
+  opacity: 0.05;
+  transform: rotate(-15deg);
 }
 
 .summary-card .label {
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   color: #909399;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-weight: 600;
   margin-bottom: 8px;
 }
 
 .summary-card .value {
-  font-size: 1.6rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
+  font-size: 1.8rem;
+  font-weight: 800;
 }
 
 .amount {
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .amount.positive {
@@ -400,5 +435,18 @@ onMounted(async () => {
 
 .amount.negative {
   color: #ff4d4f;
+}
+
+:deep(.el-table) {
+  padding: 0 16px;
+}
+
+.create-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
 }
 </style>
