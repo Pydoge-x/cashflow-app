@@ -54,6 +54,11 @@ const routes = [
         path: 'glossary',
         name: 'Glossary',
         component: () => import('../views/GlossaryView.vue')
+      },
+      {
+        path: 'ai-assistant',
+        name: 'AiAssistant',
+        component: () => import('../views/AiAssistantView.vue')
       }
     ]
   }

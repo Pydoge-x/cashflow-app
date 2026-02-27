@@ -82,6 +82,12 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- WebFlux (WebClient - for streaming proxy to AI service) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+
         <!-- Testing -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

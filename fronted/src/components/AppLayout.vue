@@ -29,6 +29,11 @@
             <LayoutDashboard :size="18" />
           </el-menu-item>
 
+          <el-menu-item index="/ai-assistant" class="ai-menu-item">
+            <template #title><span class="gold-text">AI 财务管家</span></template>
+            <BotIcon :size="18" class="gold-text" />
+          </el-menu-item>
+
           <el-menu-item-group v-if="financeStore.reports.length > 0">
             <template #title>
               <span class="group-title">报表管理</span>
@@ -100,6 +105,10 @@
             <LayoutDashboard :size="18" />
             <span>仪表盘</span>
           </el-menu-item>
+          <el-menu-item index="/ai-assistant">
+            <BotIcon :size="18" />
+            <span>AI 财务管家</span>
+          </el-menu-item>
           <template v-for="report in financeStore.reports" :key="report.id">
             <el-sub-menu :index="`report-${report.id}`">
               <template #title>
@@ -166,6 +175,11 @@
           <span>报表</span>
         </button>
 
+        <router-link to="/ai-assistant" class="nav-item" :class="{ active: activeMenu === '/ai-assistant' }">
+          <BotIcon :size="20" />
+          <span>AI助理</span>
+        </router-link>
+
         <router-link to="/glossary" class="nav-item" :class="{ active: activeMenu === '/glossary' }">
           <BookMarked :size="20" />
           <span>词典</span>
@@ -202,7 +216,8 @@ import {
   BookMarked,
   Layers,
   User as UserIcon,
-  Users as UsersIcon
+  Users as UsersIcon,
+  Bot as BotIcon
 } from 'lucide-vue-next';
 
 const router = useRouter();
